@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Link Extractor 9000</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="console" aria-labelledby="app-title">
+      <header class="masthead">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <div>
+          <p class="eyebrow">Field utility / URL collection</p>
+          <h1 id="app-title">Link Extractor <em>9000</em></h1>
+        </div>
+        <span class="live-indicator" title="Collection is stored locally">Local</span>
+      </header>
+
+      <section class="page-context" aria-label="Current page">
+        <span class="context-label">Target</span>
+        <strong id="page-host">Reading active tab…</strong>
+        <span id="page-kind" class="context-kind">Page scan</span>
+      </section>
+
+      <section id="search-scope" class="scope-panel" hidden>
+        <div class="scope-heading">
+          <span class="scope-signal" aria-hidden="true">!</span>
+          <div>
+            <p class="eyebrow">Search results detected</p>
+            <h2 id="search-engine-label">Choose collection scope</h2>
+          </div>
+        </div>
+
+        <fieldset class="scope-options">
+          <legend class="sr-only">URLs to collect</legend>
+          <label class="scope-option">
+            <input type="radio" name="scope" value="results" checked />
+            <span>
+              <strong>Result URLs only</strong>
+              <small>Skip search controls, navigation and internal links.</small>
+            </span>
+          </label>
+          <label class="scope-option">
+            <input type="radio" name="scope" value="all" />
+            <span>
+              <strong>Every URL on page</strong>
+              <small>Collect every HTTP or HTTPS link currently loaded.</small>
+            </span>
+          </label>
+        </fieldset>
+      </section>
+
+      <button id="collect-button" class="collect-button" type="button" disabled>
+        <span class="button-icon" aria-hidden="true">↳</span>
+        <span id="collect-label">Collect page URLs</span>
+      </button>
+
+      <p id="status" class="status" role="status" aria-live="polite">Ready when you are.</p>
+
+      <section class="collection" aria-labelledby="collection-heading">
+        <div class="collection-heading">
+          <div>
+            <p class="eyebrow">Persistent collection</p>
+            <h2 id="collection-heading">Saved URLs</h2>
+          </div>
+          <div class="count-lockup" aria-label="Saved URL count">
+            <strong id="url-count">0</strong>
+            <span>saved</span>
+          </div>
+        </div>
+
+        <ol id="url-preview" class="url-preview" aria-label="Most recently collected URLs"></ol>
+        <p id="empty-state" class="empty-state">Your collected URLs will wait here between pages.</p>
+
+        <div class="collection-actions">
+          <button id="copy-button" class="secondary-button copy-button" type="button" disabled>
+            Copy all
+          </button>
+          <button id="clear-button" class="secondary-button clear-button" type="button" disabled>
+            Clear
+          </button>
+        </div>
+      </section>
+
+      <footer>
+        <span>Exact duplicates are ignored</span>
+        <span aria-hidden="true">●</span>
+        <span>Stored on this device</span>
+      </footer>
+    </main>
+
+    <script src="../lib/collection.js"></script>
+    <script src="../content/extract-links.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
