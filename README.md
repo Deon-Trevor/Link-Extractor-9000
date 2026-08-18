@@ -11,6 +11,9 @@ Link Extractor 9000 is a Firefox-first browser extension for collecting URLs acr
   `search.syncpundit.io`, and SearXNG result pages.
 - Recognize other SearXNG instances and conventional `/search` or `/results`
   pages when their rendered result structure confirms that they are search pages.
+- Detect native search pages across major social, video, audio, and subscription
+  streaming platforms using stable URL shapes, with semantic result scopes where
+  a platform mixes search results with navigation or recommendations.
 - On detected search pages, choose between result URLs only and every page URL.
 - Append new URLs to persistent local extension storage.
 - Ignore exact duplicates while preserving capture order.
@@ -52,6 +55,14 @@ contains a recognizable result list:
 
 Choose a mode and select **Collect result URLs** or **Collect every page URL**. Result-only mode is selected by default.
 
+Native platform search coverage includes YouTube, Reddit, X/Twitter, TikTok,
+Instagram, Facebook, LinkedIn, Threads, Bluesky, Pinterest, Tumblr, Mastodon,
+Twitch, Vimeo, Dailymotion, Rumble, Odysee, Kick, SoundCloud, Spotify, Apple
+Music, Bandcamp, Mixcloud, Audiomack, Bilibili, Crunchyroll, Netflix, Prime
+Video, Disney+, Max, Hulu, and Tubi. See
+[`docs/platform-support.md`](docs/platform-support.md) for support levels and
+known limitations.
+
 ### Copy or clear the collection
 
 - Select **Copy all** to place the complete collection on the clipboard, with one URL per line. Copying does not clear it.
@@ -75,7 +86,11 @@ npm test
 npm run check
 ```
 
-`src/content/extract-links.js` contains the injected page extractor. Search-result selectors are intentionally isolated there because search engines can change their markup independently of the collection and popup code.
+`src/content/extract-links.js` contains the injected page extractor.
+`src/lib/search-adapters.js` defines native platform search routes and stable
+result URL shapes. Search-provider selectors remain isolated in the extractor
+because providers can change their markup independently of the collection and
+popup code.
 
 ## Logo and brand assets
 

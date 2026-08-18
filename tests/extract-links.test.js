@@ -22,8 +22,11 @@ function anchor(href, { heading = false, advertisement = false, braveResult = fa
   };
 }
 
-function fakeDocument(selectorMap) {
+function fakeDocument(selectorMap, singleSelectorMap = {}) {
   return {
+    querySelector(selector) {
+      return singleSelectorMap[selector] || null;
+    },
     querySelectorAll(selector) {
       if (selector === "*") return [];
       return selectorMap[selector] || [];
@@ -131,4 +134,120 @@ test("Brave result mode keeps snippet result links and rejects internal links", 
   );
 
   assert.deepEqual(result.urls, ["https://target.example/brave-finding"]);
+});
+
+test("Startpage result mode collects organic title links", () => {
+  const selector = "a.result-title.result-link[href]";
+  const page = fakeDocument({
+    [selector]: [
+      anchor("https://target.example/startpage-finding"),
+      anchor("https://www.startpage.com/sp/search?query=another"),
+    ],
+  });
+
+  const result = withPage("https://www.startpage.com/sp/search?query=test", page, () =>
+    extractLinksFromPage({ scope: "results", engine: "startpage" }),
+  );
+
+  assert.deepEqual(result.urls, ["https://target.example/startpage-finding"]);
+});
+
+test("SyncPundit Search result mode collects its result anchors", () => {
+  const selector = ".search-result > a.search-result-anchor[href]";
+  const page = fakeDocument({
+    [selector]: [
+      anchor("https://target.example/syncpundit-finding"),
+      anchor("https://search.syncpundit.io/search?q=another"),
+    ],
+  });
+
+  const result = withPage("https://search.syncpundit.io/search?q=test", page, () =>
+    extractLinksFromPage({ scope: "results", engine: "syncpundit-search" }),
+  );
+
+  assert.deepEqual(result.urls, ["https://target.example/syncpundit-finding"]);
+});
+
+test("SearXNG result mode keeps one heading link per result", () => {
+  const selector = "#results article.result h3 a[href]";
+  const page = fakeDocument({
+    [selector]: [
+      anchor("https://target.example/searxng-finding"),
+      anchor("https://searx.syncpundit.io/preferences"),
+    ],
+  });
+
+  const result = withPage("https://searx.syncpundit.io/search?q=test", page, () =>
+    extractLinksFromPage({ scope: "results", engine: "searxng" }),
+  );
+
+  assert.deepEqual(result.urls, ["https://target.example/searxng-finding"]);
+});
+
+test("detect mode recognizes SearXNG from its generator metadata", () => {
+  const generator = {
+    getAttribute(name) {
+      return name === "content" ? "searxng/2026.7.25" : null;
+    },
+  };
+  const page = fakeDocument({}, { 'meta[name="generator"]': generator });
+
+  const result = withPage("https://public-searx.example/search?q=test", page, () =>
+    extractLinksFromPage({ scope: "detect" }),
+  );
+
+  assert.deepEqual(result.searchEngine, { id: "searxng", label: "SearXNG" });
+  assert.deepEqual(result.urls, []);
+});
+
+test("detect mode recognizes federated Mastodon search pages", () => {
+  const applicationName = {
+    getAttribute(name) {
+      return name === "content" ? "Mastodon" : null;
+    },
+  };
+  const page = fakeDocument({}, { 'meta[name="application-name"]': applicationName });
+
+  const result = withPage("https://social.example/search?q=test", page, () =>
+    extractLinksFromPage({ scope: "detect" }),
+  );
+
+  assert.deepEqual(result.searchEngine, { id: "mastodon", label: "Mastodon" });
+});
+
+test("detect mode remains self-contained when serialized for script injection", () => {
+  const generator = {
+    getAttribute(name) {
+      return name === "content" ? "searxng/2026.7.25" : null;
+    },
+  };
+  const page = fakeDocument({}, { 'meta[name="generator"]': generator });
+  const injectedExtractor = Function(`return (${extractLinksFromPage.toString()})`)();
+
+  const result = withPage("https://public-searx.example/search?q=test", page, () =>
+    injectedExtractor({ scope: "detect" }),
+  );
+
+  assert.deepEqual(result.searchEngine, { id: "searxng", label: "SearXNG" });
+});
+
+test("detect mode recognizes structured generic search result pages", () => {
+  const selector = [
+    "#results article h2 a[href]",
+    "#results article h3 a[href]",
+    "#search-results article h2 a[href]",
+    "#search-results article h3 a[href]",
+    ".search-results .result h2 a[href]",
+    ".search-results .result h3 a[href]",
+    "main .search-result h2 a[href]",
+    "main .search-result h3 a[href]",
+    "main a.search-result-anchor[href]",
+  ].join(", ");
+  const page = fakeDocument({ [selector]: [anchor("https://target.example/finding")] });
+
+  const result = withPage("https://search.example/results?query=test", page, () =>
+    extractLinksFromPage({ scope: "detect" }),
+  );
+
+  assert.deepEqual(result.searchEngine, { id: "generic-search", label: "Search page" });
 });

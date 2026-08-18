@@ -1,15 +1,43 @@
 (function exposeCollectionLibrary(root, factory) {
-  const library = factory();
+  const searchAdapters =
+    typeof module === "object" && module.exports
+      ? require("./search-adapters.js")
+      : root.LinkExtractorSearchAdapters;
+  const library = factory(searchAdapters);
 
   if (typeof module === "object" && module.exports) {
     module.exports = library;
   } else {
     root.LinkExtractor9000 = library;
   }
-})(typeof globalThis !== "undefined" ? globalThis : this, function createCollectionLibrary() {
+})(typeof globalThis !== "undefined" ? globalThis : this, function createCollectionLibrary(
+  searchAdapters,
+) {
   "use strict";
 
   const STORAGE_KEY = "urlCollection";
+
+  function isPotentialSearchResultsPage(rawUrl) {
+    let url;
+
+    try {
+      url = new URL(rawUrl);
+    } catch {
+      return false;
+    }
+
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return false;
+    }
+
+    const path = url.pathname.replace(/\/+$/, "") || "/";
+    const endpoint = path.split("/").pop();
+    return (
+      endpoint === "search" ||
+      endpoint === "results" ||
+      (path === "/" && (url.searchParams.has("q") || url.searchParams.has("query")))
+    );
+  }
 
   function detectSearchEngine(rawUrl) {
     let url;
@@ -39,7 +67,31 @@
       return { id: "brave", label: "Brave Search" };
     }
 
-    return null;
+    if (
+      (host === "startpage.com" || host.endsWith(".startpage.com")) &&
+      (path === "/sp/search" || path === "/do/search") &&
+      url.searchParams.has("query")
+    ) {
+      return { id: "startpage", label: "Startpage" };
+    }
+
+    if (host === "search.syncpundit.io" && path === "/search" && url.searchParams.has("q")) {
+      return { id: "syncpundit-search", label: "SyncPundit Search" };
+    }
+
+    if (
+      host === "searx.syncpundit.io" &&
+      (path === "/search" || path === "/") &&
+      url.searchParams.has("q")
+    ) {
+      return { id: "searxng", label: "SearXNG" };
+    }
+
+    return searchAdapters?.detectNativeSearchEngine(url.href) || null;
+  }
+
+  function getSearchAdapter(id) {
+    return searchAdapters?.getSearchAdapter(id) || null;
   }
 
   function normalizeCollection(value) {
@@ -108,7 +160,9 @@
   return {
     STORAGE_KEY,
     detectSearchEngine,
+    getSearchAdapter,
     isHttpUrl,
+    isPotentialSearchResultsPage,
     mergeUrls,
     normalizeCollection,
     toClipboardText,

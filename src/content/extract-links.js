@@ -11,9 +11,50 @@
 
   function extractLinksFromPage(options) {
     const settings = options || {};
-    const scope = settings.scope === "results" ? "results" : "all";
+    const scope =
+      settings.scope === "results" || settings.scope === "detect" ? settings.scope : "all";
     const engine = settings.engine || null;
+    const adapter = settings.adapter || null;
     const pageUrl = new URL(location.href);
+    const genericResultSelector = [
+      "#results article h2 a[href]",
+      "#results article h3 a[href]",
+      "#search-results article h2 a[href]",
+      "#search-results article h3 a[href]",
+      ".search-results .result h2 a[href]",
+      ".search-results .result h3 a[href]",
+      "main .search-result h2 a[href]",
+      "main .search-result h3 a[href]",
+      "main a.search-result-anchor[href]",
+    ].join(", ");
+    const searxngResultSelector = "#results article.result h3 a[href]";
+
+    function detectSearchEngineFromDom() {
+      const generator = document.querySelector('meta[name="generator"]');
+      const generatorName = generator?.getAttribute("content")?.toLowerCase() || "";
+      const applicationName =
+        document
+          .querySelector('meta[name="application-name"]')
+          ?.getAttribute("content")
+          ?.toLowerCase() || "";
+      const searxngSearchLink = document.querySelector(
+        'link[rel="search"][title="SearXNG"]',
+      );
+
+      if (generatorName.startsWith("searxng/") || searxngSearchLink) {
+        return { id: "searxng", label: "SearXNG" };
+      }
+
+      if (generatorName.includes("mastodon") || applicationName.includes("mastodon")) {
+        return { id: "mastodon", label: "Mastodon" };
+      }
+
+      if (document.querySelectorAll(genericResultSelector).length) {
+        return { id: "generic-search", label: "Search page" };
+      }
+
+      return null;
+    }
 
     function collectAllAnchors(root) {
       const anchors = Array.from(root.querySelectorAll("a[href], area[href]"));
@@ -29,6 +70,25 @@
     }
 
     function collectResultAnchors() {
+      if (adapter) {
+        return collectAllAnchors(document).filter((anchor) => {
+          if (!anchorIsInAdapterScope(anchor)) {
+            return false;
+          }
+
+          const rawUrl = anchor.href || anchor.getAttribute("href");
+          if (!rawUrl) {
+            return false;
+          }
+
+          try {
+            return Boolean(findAdapterResultRule(new URL(rawUrl, pageUrl)));
+          } catch {
+            return false;
+          }
+        });
+      }
+
       if (engine === "google") {
         return Array.from(document.querySelectorAll("#search a[href]")).filter(
           (anchor) =>
@@ -59,7 +119,92 @@
         );
       }
 
+      if (engine === "startpage") {
+        return Array.from(
+          document.querySelectorAll("a.result-title.result-link[href]"),
+        );
+      }
+
+      if (engine === "syncpundit-search") {
+        return Array.from(
+          document.querySelectorAll(".search-result > a.search-result-anchor[href]"),
+        );
+      }
+
+      if (engine === "searxng") {
+        return Array.from(document.querySelectorAll(searxngResultSelector));
+      }
+
+      if (engine === "generic-search") {
+        return Array.from(document.querySelectorAll(genericResultSelector));
+      }
+
       return [];
+    }
+
+    function anchorIsInAdapterScope(anchor) {
+      if (typeof anchor.closest !== "function") {
+        return !(adapter.anchorScopeSelectors || []).length;
+      }
+
+      if (anchor.closest('nav, header, footer, aside, [role="navigation"]')) {
+        return false;
+      }
+
+      if (
+        (adapter.anchorRejectSelectors || []).some((selector) =>
+          anchor.closest(selector),
+        )
+      ) {
+        return false;
+      }
+
+      const scopes = adapter.anchorScopeSelectors || [];
+      return !scopes.length || scopes.some((selector) => anchor.closest(selector));
+    }
+
+    function hostMatches(host, domains) {
+      return (domains || []).some(
+        (domain) => host === domain || host.endsWith(`.${domain}`),
+      );
+    }
+
+    function findAdapterResultRule(url) {
+      if (!adapter) {
+        return null;
+      }
+
+      const host = url.hostname.toLowerCase();
+      return (
+        adapter.resultRules.find((rule) => {
+          const validHost = rule.sameHost
+            ? host === pageUrl.hostname.toLowerCase()
+            : hostMatches(host, rule.hosts || adapter.hosts);
+
+          return (
+            validHost &&
+            new RegExp(rule.pathPattern).test(url.pathname) &&
+            (rule.requiredParams || []).every((parameter) =>
+              url.searchParams.has(parameter),
+            )
+          );
+        }) || null
+      );
+    }
+
+    function canonicalizeAdapterUrl(url, rule) {
+      const canonical = new URL(url.href);
+      canonical.hash = "";
+
+      if (Array.isArray(rule.keepParams)) {
+        for (const parameter of Array.from(canonical.searchParams.keys())) {
+          if (!rule.keepParams.includes(parameter)) {
+            canonical.searchParams.delete(parameter);
+          }
+        }
+      }
+
+      return canonical;
     }
 
     function unwrapKnownRedirect(url) {
@@ -106,6 +251,13 @@
       if (engine === "brave") {
         return host === "brave.com" || host.endsWith(".brave.com");
       }
+      if (engine === "startpage") {
+        return host === "startpage.com" || host.endsWith(".startpage.com");
+      }
+      if (engine === "syncpundit-search" || engine === "searxng") {
+        const pageHost = pageUrl.hostname.toLowerCase().replace(/^www\./, "");
+        return host === pageHost;
+      }
       return false;
     }
 
@@ -116,17 +268,35 @@
       }
 
       try {
-        const url = unwrapKnownRedirect(new URL(rawUrl, pageUrl));
+        let url = unwrapKnownRedirect(new URL(rawUrl, pageUrl));
         if (url.protocol !== "http:" && url.protocol !== "https:") {
           return null;
         }
-        if (scope === "results" && isSearchEngineInternal(url)) {
+
+        if (scope === "results" && adapter) {
+          const rule = findAdapterResultRule(url);
+          if (!rule) {
+            return null;
+          }
+          url = canonicalizeAdapterUrl(url, rule);
+        } else if (scope === "results" && isSearchEngineInternal(url)) {
           return null;
         }
         return url.href;
       } catch {
         return null;
       }
+    }
+
+    if (scope === "detect") {
+      const detectedEngine = detectSearchEngineFromDom();
+      return {
+        engine: detectedEngine?.id || null,
+        searchEngine: detectedEngine,
+        scope,
+        candidates: 0,
+        urls: [],
+      };
     }
 
     const anchors = scope === "results" ? collectResultAnchors() : collectAllAnchors(document);

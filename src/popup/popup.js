@@ -5,6 +5,8 @@
   const {
     STORAGE_KEY,
     detectSearchEngine,
+    getSearchAdapter,
+    isPotentialSearchResultsPage,
     mergeUrls,
     normalizeCollection,
     toClipboardText,
@@ -61,7 +63,7 @@
       activeTab = tabs[0] || null;
       collection = normalizeCollection(stored[STORAGE_KEY]);
       renderCollection();
-      renderPageContext();
+      await renderPageContext();
       elements.collectButton.disabled = !activeTab?.id;
       await updateBadge();
     } catch (error) {
@@ -71,7 +73,7 @@
     }
   }
 
-  function renderPageContext() {
+  async function renderPageContext() {
     if (!activeTab?.url) {
       elements.pageHost.textContent = "No active webpage";
       return;
@@ -88,16 +90,34 @@
     elements.pageHost.textContent = url.hostname || activeTab.title || "Current page";
     searchEngine = detectSearchEngine(url.href);
 
+    if (!searchEngine && isPotentialSearchResultsPage(url.href)) {
+      searchEngine = await detectSearchEngineFromPage();
+    }
+
     if (searchEngine) {
       elements.scopePanel.hidden = false;
       elements.searchEngineLabel.textContent = `${searchEngine.label} results`;
-      elements.pageKind.textContent = "SERP detected";
+      elements.pageKind.textContent = "Search detected";
     } else {
       elements.scopePanel.hidden = true;
       elements.pageKind.textContent = "Page scan";
     }
 
     updateCollectLabel();
+  }
+
+  async function detectSearchEngineFromPage() {
+    try {
+      const executions = await extensionApi.scripting.executeScript({
+        target: { tabId: activeTab.id },
+        func: globalThis.extractLinksFromPage,
+        args: [{ scope: "detect" }],
+      });
+      return executions.find((execution) => execution.result?.searchEngine)?.result
+        ?.searchEngine || null;
+    } catch {
+      return null;
+    }
   }
 
   function selectedScope() {
@@ -126,7 +146,13 @@
       const executions = await extensionApi.scripting.executeScript({
         target: { tabId: activeTab.id },
         func: globalThis.extractLinksFromPage,
-        args: [{ scope, engine: searchEngine?.id || null }],
+        args: [
+          {
+            scope,
+            engine: searchEngine?.id || null,
+            adapter: getSearchAdapter(searchEngine?.id),
+          },
+        ],
       });
       const incoming = executions.flatMap((execution) => execution.result?.urls || []);
       const merged = mergeUrls(collection.urls, incoming);

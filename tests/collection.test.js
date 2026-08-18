@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 
 const {
   detectSearchEngine,
+  isPotentialSearchResultsPage,
   mergeUrls,
   normalizeCollection,
   toClipboardText,
@@ -21,8 +22,45 @@ test("detects supported search result pages without matching unrelated pages", (
     id: "duckduckgo",
     label: "DuckDuckGo",
   });
+  assert.deepEqual(
+    detectSearchEngine(
+      "https://www.startpage.com/sp/search?query=site%3Aexample.com&cat=web",
+    ),
+    {
+      id: "startpage",
+      label: "Startpage",
+    },
+  );
+  assert.deepEqual(detectSearchEngine("https://search.syncpundit.io/search?q=security"), {
+    id: "syncpundit-search",
+    label: "SyncPundit Search",
+  });
+  assert.deepEqual(detectSearchEngine("https://searx.syncpundit.io/search?q=security"), {
+    id: "searxng",
+    label: "SearXNG",
+  });
+  assert.deepEqual(
+    detectSearchEngine("https://www.youtube.com/results?search_query=security"),
+    {
+      id: "youtube",
+      label: "YouTube",
+    },
+  );
+  assert.deepEqual(detectSearchEngine("https://open.spotify.com/search/security"), {
+    id: "spotify",
+    label: "Spotify",
+  });
   assert.equal(detectSearchEngine("https://mail.google.com/mail/u/0/"), null);
   assert.equal(detectSearchEngine("https://example.com/search?q=security"), null);
+});
+
+test("flags likely search result URLs for DOM-backed detection", () => {
+  assert.equal(isPotentialSearchResultsPage("https://public.example/search?q=security"), true);
+  assert.equal(isPotentialSearchResultsPage("https://public.example/results"), true);
+  assert.equal(isPotentialSearchResultsPage("https://public.example/?query=security"), true);
+  assert.equal(isPotentialSearchResultsPage("https://public.example/articles?q=security"), false);
+  assert.equal(isPotentialSearchResultsPage("https://public.example/articles"), false);
+  assert.equal(isPotentialSearchResultsPage("about:preferences#search"), false);
 });
 
 test("merges URLs in capture order and reports duplicates and rejected values", () => {
