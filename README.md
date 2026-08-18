@@ -15,14 +15,48 @@ Link Extractor 9000 is a Firefox-first browser extension for collecting URLs acr
 
 The extension does not call a SERP service or send collected URLs anywhere.
 
-## Run in Firefox
+## Install temporarily in Firefox
 
 1. Open `about:debugging#/runtime/this-firefox`.
 2. Select **Load Temporary Add-on**.
 3. Choose this repository's `manifest.json`.
-4. Pin **Link Extractor 9000** to the toolbar.
+4. Open Firefox's extensions menu and pin **Link Extractor 9000** to the toolbar.
 
 Firefox unloads temporary add-ons when it restarts, so load the manifest again to continue development. A normally installed, signed release will retain its local collection across browser restarts.
+
+## Use the extension
+
+### Collect links from a regular page
+
+1. Open the page whose links you want to collect.
+2. Select **Link Extractor 9000** in the Firefox toolbar.
+3. Select **Collect every page URL**.
+4. Check the result shown below the button. It reports how many URLs were added and how many duplicates were ignored.
+5. Close the popup or move to another page. Your collection remains saved locally.
+6. Repeat these steps on as many pages as needed. New URLs are appended to the existing collection.
+
+### Collect links from search results
+
+On supported Google, Bing, DuckDuckGo, and Brave Search result pages, the popup asks what to collect:
+
+- **Result URLs only** collects detected search-result destinations while excluding search controls, navigation, and internal search-engine links.
+- **Every URL on page** collects every loaded HTTP or HTTPS link, including navigation and other page links.
+
+Choose a mode and select **Collect result URLs** or **Collect every page URL**. Result-only mode is selected by default.
+
+### Copy or clear the collection
+
+- Select **Copy all** to place the complete collection on the clipboard, with one URL per line. Copying does not clear it.
+- Select **Clear**, then **Confirm clear**, to permanently empty the collection.
+- The number on the extension's toolbar badge is the current saved URL count.
+
+## Usage notes
+
+- Only links currently loaded in the page are available. Scroll or load more search results before collecting from an infinite-scrolling page.
+- Exact duplicate URLs are ignored across every collection run. Capture order is preserved.
+- Firefox-protected pages such as `about:` pages cannot be inspected by extensions.
+- Search engines can change their result markup. If result-only mode returns nothing, use **Every URL on page** and report the affected search engine.
+- The extension stores URLs on the local device and does not send them to a server.
 
 ## Development
 
