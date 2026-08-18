@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Link Extractor 9000">
+  <title>Link Extractor 9000</title>
+  <defs>
+    <linearGradient id="tube" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2ffbe"/>
+      <stop offset="0.22" stop-color="#d8ff6e"/>
+      <stop offset="0.52" stop-color="#a8e42b"/>
+      <stop offset="0.82" stop-color="#6ea515"/>
+      <stop offset="1" stop-color="#4d7a0d"/>
+    </linearGradient>
+    <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe7b0"/>
+      <stop offset="0.45" stop-color="#ffbd59"/>
+      <stop offset="1" stop-color="#d4820f"/>
+    </linearGradient>
+    <filter id="lift" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="2.4" stdDeviation="2.6" flood-color="#101a04" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#lift)">
+    <g transform="rotate(-45 64 64) translate(64 64) scale(0.94) translate(-64 -64)">
+      <g fill="none" stroke="#22320a" stroke-width="22" stroke-linecap="round">
+        <path d="M56 44H40a20 20 0 0 0 0 40h16"/>
+        <path d="M72 44h16a20 20 0 0 1 0 40H72"/>
+      </g>
+      <rect x="43" y="54" width="42" height="20" rx="10" fill="#22320a"/>
+
+      <g fill="none" stroke="url(#tube)" stroke-width="13" stroke-linecap="round">
+        <path d="M56 44H40a20 20 0 0 0 0 40h16"/>
+        <path d="M72 44h16a20 20 0 0 1 0 40H72"/>
+      </g>
+      <rect x="47.5" y="58.5" width="33" height="11" rx="5.5" fill="url(#barGrad)"/>
+
+      <g fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="3.4" stroke-linecap="round"
+         transform="translate(0 -2.7)">
+        <path d="M54 44H41a20 20 0 0 0 -14 8"/>
+        <path d="M74 44h13a20 20 0 0 1 14 8"/>
+      </g>
+      <rect x="50" y="59.5" width="24" height="3" rx="1.5" fill="#ffffff" fill-opacity="0.5"/>
+    </g>
+  </g>
+</svg>

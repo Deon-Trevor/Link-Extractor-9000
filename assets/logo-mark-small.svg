@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Link Extractor 9000">
+  <title>Link Extractor 9000</title>
+  <defs>
+    <linearGradient id="tubeS" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eaff9e"/>
+      <stop offset="0.4" stop-color="#c2f13f"/>
+      <stop offset="1" stop-color="#6ba014"/>
+    </linearGradient>
+    <linearGradient id="barGradS" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffdd9b"/>
+      <stop offset="1" stop-color="#ef9c1c"/>
+    </linearGradient>
+  </defs>
+  <g transform="rotate(-45 64 64) translate(64 64) scale(0.95) translate(-64 -64)">
+    <g fill="none" stroke="#22320a" stroke-width="23" stroke-linecap="round">
+      <path d="M56 38H42a26 26 0 0 0 0 52h14"/>
+      <path d="M72 38h14a26 26 0 0 1 0 52H72"/>
+    </g>
+    <rect x="42" y="52" width="44" height="24" rx="12" fill="#22320a"/>
+    <g fill="none" stroke="url(#tubeS)" stroke-width="15" stroke-linecap="round">
+      <path d="M56 38H42a26 26 0 0 0 0 52h14"/>
+      <path d="M72 38h14a26 26 0 0 1 0 52H72"/>
+    </g>
+    <rect x="46" y="56" width="36" height="16" rx="8" fill="url(#barGradS)"/>
+  </g>
+</svg>

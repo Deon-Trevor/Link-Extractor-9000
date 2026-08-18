@@ -1,11 +1,16 @@
 # Link Extractor 9000
 
+<img src="assets/logo-lockup.png" alt="Link Extractor 9000" width="600">
+
 Link Extractor 9000 is a Firefox-first browser extension for collecting URLs across multiple pages without losing your working set when the popup closes.
 
 ## Current MVP
 
 - Collect every HTTP or HTTPS link currently loaded on a page.
-- Detect Google, Bing, DuckDuckGo, and Brave Search result pages.
+- Detect Google, Bing, DuckDuckGo, Brave Search, Startpage, SyncPundit Search at
+  `search.syncpundit.io`, and SearXNG result pages.
+- Recognize other SearXNG instances and conventional `/search` or `/results`
+  pages when their rendered result structure confirms that they are search pages.
 - On detected search pages, choose between result URLs only and every page URL.
 - Append new URLs to persistent local extension storage.
 - Ignore exact duplicates while preserving capture order.
@@ -37,7 +42,10 @@ Firefox unloads temporary add-ons when it restarts, so load the manifest again t
 
 ### Collect links from search results
 
-On supported Google, Bing, DuckDuckGo, and Brave Search result pages, the popup asks what to collect:
+On supported Google, Bing, DuckDuckGo, Brave Search, Startpage, SyncPundit
+Search, and SearXNG result pages, the popup asks what to collect. The same prompt
+appears on other `/search` and `/results` pages when their rendered markup
+contains a recognizable result list:
 
 - **Result URLs only** collects detected search-result destinations while excluding search controls, navigation, and internal search-engine links.
 - **Every URL on page** collects every loaded HTTP or HTTPS link, including navigation and other page links.
@@ -68,3 +76,22 @@ npm run check
 ```
 
 `src/content/extract-links.js` contains the injected page extractor. Search-result selectors are intentionally isolated there because search engines can change their markup independently of the collection and popup code.
+
+## Logo and brand assets
+
+| File | Use |
+| --- | --- |
+| `assets/logo-mark.svg` | Master mark. Gradient tube, bevel highlights, and a soft drop shadow. Use at 48px and above. |
+| `assets/logo-mark-small.svg` | Simplified mark with heavier strokes and larger link holes for 16px and 32px. |
+| `assets/logo-lockup.svg` | Horizontal mark plus wordmark on a console panel. `assets/logo-lockup.png` is the rendered copy used above. |
+| `icons/icon-*.png` | Rendered toolbar and installation icons declared in `manifest.json`. |
+
+The mark is a chain link cut by an amber extraction bar. It has no background
+plate, so it sits directly on light, dark, and coloured browser toolbars; the dark
+green outline keeps the silhouette readable on any of them. Palette: signal lime
+`#c7ff4a`, amber `#ffbd59`, outline `#22320a`.
+
+The popup masthead loads `assets/logo-mark.svg` directly, so editing that file
+updates the in-extension header. Regenerate the PNGs after editing an SVG, using
+any SVG rasterizer at the target pixel size. The 16px and 32px icons come from
+`logo-mark-small.svg`; the rest come from `logo-mark.svg`.
