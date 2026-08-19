@@ -2,8 +2,8 @@
 
 <img src="assets/logo-lockup.png" alt="Link Extractor 9000" width="600">
 
-A Firefox extension that harvests the links off a page into one list you can copy
-or export.
+A browser extension that harvests the links off a page into one list you can copy
+or export. Runs on Firefox and Chrome.
 
 Click the toolbar button, hit collect, and every http and https link loaded on
 that page is saved. Move to the next page and collect again. The list keeps
@@ -29,22 +29,30 @@ anywhere.
 
 ## Install
 
-Not on addons.mozilla.org yet. To run it from this repo:
+Neither store listing is live yet, so build it and load the unpacked result:
 
-1. Open `about:debugging#/runtime/this-firefox`.
-2. Choose **Load Temporary Add-on** and pick `manifest.json`.
-3. Pin **Link Extractor 9000** to the toolbar.
+```bash
+npm run package
+```
 
-Firefox drops temporary add-ons when it restarts.
+**Firefox.** Open `about:debugging#/runtime/this-firefox`, choose Load Temporary
+Add-on, and pick `dist/firefox/manifest.json`. Firefox drops temporary add-ons
+when it restarts.
+
+**Chrome.** Open `chrome://extensions`, turn on Developer mode, choose Load
+unpacked, and pick `dist/chromium`.
 
 ## Development
 
-Plain HTML, CSS, and JavaScript with no runtime dependencies.
+Plain HTML, CSS, and JavaScript with no runtime dependencies. Everything both
+browsers share lives in the root. The only per-platform file is the manifest, in
+`firefox/` and `chromium/`.
 
 ```bash
-npm test           # unit tests
-npm run check      # syntax, icons, popup contrast and type scale
-npm run package    # build dist/link-extractor-9000-<version>.zip
+npm test             # unit tests
+npm run check        # syntax, manifests, icons, popup contrast and type scale
+npm run package      # build dist/firefox and dist/chromium, plus a zip each
+npm run verify:chrome  # drive the Chrome build in a real headless Chrome
 ```
 
 GPL-3.0-only.

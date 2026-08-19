@@ -4,8 +4,9 @@
   "private": true,
   "description": "A Firefox-first browser extension for collecting URLs across pages.",
   "scripts": {
-    "check": "node --check src/lib/search-adapters.js && node --check src/lib/collection.js && node --check src/content/extract-links.js && node --check src/popup/popup.js && node -e \"JSON.parse(require('node:fs').readFileSync('manifest.json', 'utf8'))\" && node scripts/verify-logo.mjs && node scripts/verify-contrast.mjs",
+    "check": "node --check src/lib/search-adapters.js && node --check src/lib/collection.js && node --check src/content/extract-links.js && node --check src/popup/popup.js && node -e \"for (const f of ['firefox/manifest.json','chromium/manifest.json']) JSON.parse(require('node:fs').readFileSync(f, 'utf8'))\" && node scripts/verify-logo.mjs && node scripts/verify-contrast.mjs",
     "package": "node scripts/package.mjs",
+    "verify:chrome": "node scripts/package.mjs chromium && node scripts/verify-chrome.mjs run",
     "verify:logo": "node scripts/verify-logo.mjs --render",
     "test": "node --test"
   },

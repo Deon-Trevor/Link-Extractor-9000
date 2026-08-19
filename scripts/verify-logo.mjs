@@ -188,7 +188,10 @@ function renderSvg(chrome, svgPath, size, outPath) {
 
 // --- checks -----------------------------------------------------------------
 
-const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.json"), "utf8"));
+const MANIFESTS = {
+  firefox: JSON.parse(fs.readFileSync(path.join(ROOT, "firefox/manifest.json"), "utf8")),
+  chromium: JSON.parse(fs.readFileSync(path.join(ROOT, "chromium/manifest.json"), "utf8")),
+};
 
 // Which SVG each rendered size is cut from. The small mark carries heavier
 // strokes so the link holes survive at toolbar sizes.
@@ -203,15 +206,17 @@ const SOURCE_FOR_SIZE = {
 console.log("manifest icon declarations");
 
 const declared = new Map();
-for (const [group, icons] of [
-  ["icons", manifest.icons],
-  ["action.default_icon", manifest.action?.default_icon],
-]) {
-  check(`${group} is declared`, () => {
-    assert(icons && Object.keys(icons).length > 0, "missing or empty");
-    for (const [size, file] of Object.entries(icons)) declared.set(`${size}:${file}`, Number(size));
-    return `${Object.keys(icons).length} sizes`;
-  });
+for (const [platform, manifest] of Object.entries(MANIFESTS)) {
+  for (const [group, icons] of [
+    ["icons", manifest.icons],
+    ["action.default_icon", manifest.action?.default_icon],
+  ]) {
+    check(`${platform} ${group} is declared`, () => {
+      assert(icons && Object.keys(icons).length > 0, "missing or empty");
+      for (const [size, file] of Object.entries(icons)) declared.set(`${size}:${file}`, Number(size));
+      return `${Object.keys(icons).length} sizes`;
+    });
+  }
 }
 
 console.log("\nicon files");
