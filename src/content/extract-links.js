@@ -112,9 +112,18 @@
       }
 
       if (engine === "brave") {
-        return Array.from(document.querySelectorAll("#results a[href]")).filter(
+        // Brave Search moved to Svelte with hashed class names: #results became
+        // #mixed-main and .snippet-title became .search-snippet-title. The
+        // .snippet block and its data-pos attribute survived the rewrite, so
+        // scope to those. #results stays as a fallback for older markup.
+        return Array.from(
+          document.querySelectorAll(
+            "#mixed-main .snippet a[href], .snippet[data-pos] a[href], #results a[href]",
+          ),
+        ).filter(
           (anchor) =>
             Boolean(anchor.querySelector(".snippet-title")) ||
+            Boolean(anchor.querySelector(".search-snippet-title")) ||
             Boolean(anchor.closest(".snippet")),
         );
       }

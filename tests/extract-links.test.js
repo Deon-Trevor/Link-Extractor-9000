@@ -120,7 +120,11 @@ test("Bing result mode unwraps encoded result redirect URLs", () => {
 });
 
 test("Brave result mode keeps snippet result links and rejects internal links", () => {
-  const selector = "#results a[href]";
+  // The stub matches selector strings exactly, so this has to mirror the string
+  // in src/content/extract-links.js. Real markup drift is caught by
+  // scripts/sweep-platforms.mjs, not here.
+  const selector =
+    "#mixed-main .snippet a[href], .snippet[data-pos] a[href], #results a[href]";
   const page = fakeDocument({
     [selector]: [
       anchor("https://target.example/brave-finding", { braveResult: true }),
