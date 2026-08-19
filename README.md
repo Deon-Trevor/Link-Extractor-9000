@@ -7,8 +7,7 @@ Link Extractor 9000 is a Firefox-first browser extension for collecting URLs acr
 ## Current MVP
 
 - Collect every HTTP or HTTPS link currently loaded on a page.
-- Detect Google, Bing, DuckDuckGo, Brave Search, Startpage, SyncPundit Search at
-  `search.syncpundit.io`, and SearXNG result pages.
+- Detect Google, Bing, DuckDuckGo, Brave Search, Startpage, MetaSearch, and SearXNG result pages.
 - Recognize other SearXNG instances and conventional `/search` or `/results`
   pages when their rendered result structure confirms that they are search pages.
 - Detect native search pages across major social, video, audio, and subscription
