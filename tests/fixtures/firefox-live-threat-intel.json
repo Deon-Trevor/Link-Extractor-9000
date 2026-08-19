@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "capturedAt": "2026-08-19T15:13:46+02:00",
+  "extendedAt": "2026-08-19T15:30:41+02:00",
   "browser": "Firefox 153.0.4",
   "captureKind": "logged-out-public",
   "cases": [
@@ -170,6 +171,133 @@
           "scope": null,
           "reject": null,
           "landmark": null,
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "netlas",
+      "capturedAt": "2026-08-19T15:30:41+02:00",
+      "query": "nginx",
+      "pageUrl": "https://app.netlas.io/responses/?page=1&q=nginx",
+      "observed": { "anchors": 78, "extracted": 37 },
+      "anchors": [
+        {
+          "href": "https://app.netlas.io/host/www.niderfeld.ch/",
+          "anchor": {
+            "tag": "a",
+            "id": null,
+            "classes": [
+              "MuiTypography-root",
+              "MuiTypography-body2",
+              "MuiLink-root",
+              "MuiLink-underlineAlways",
+              "css-1984aqv"
+            ]
+          },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://app.netlas.io/host/www.niderfeld.ch/"
+        },
+        {
+          "href": "https://app.netlas.io/host/142.250.203.147/",
+          "anchor": {
+            "tag": "a",
+            "id": null,
+            "classes": [
+              "MuiTypography-root",
+              "MuiTypography-inherit",
+              "MuiLink-root",
+              "MuiLink-underlineAlways",
+              "css-6a8t2h"
+            ]
+          },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://app.netlas.io/host/142.250.203.147/"
+        },
+        {
+          "href": "https://netlas.io/",
+          "anchor": {
+            "tag": "a",
+            "id": null,
+            "classes": [
+              "MuiTypography-root",
+              "MuiTypography-inherit",
+              "MuiLink-root",
+              "MuiLink-underlineAlways",
+              "css-3kwlr3"
+            ]
+          },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "header", "role": null, "id": null },
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "fullhunt",
+      "capturedAt": "2026-08-19T15:30:41+02:00",
+      "query": "example.com",
+      "pageUrl": "https://fullhunt.io/search/?query=example.com",
+      "observed": { "anchors": 136, "extracted": 2 },
+      "anchors": [
+        {
+          "href": "https://fullhunt.io/host/www.example.com",
+          "anchor": {
+            "tag": "a",
+            "id": null,
+            "classes": [
+              "new-btn",
+              "bg-natural-300",
+              "text-secondary",
+              "text-uppercase"
+            ]
+          },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://fullhunt.io/host/www.example.com"
+        },
+        {
+          "href": "https://fullhunt.io/host/example.com",
+          "anchor": {
+            "tag": "a",
+            "id": null,
+            "classes": [
+              "new-btn",
+              "bg-natural-300",
+              "text-secondary",
+              "text-uppercase"
+            ]
+          },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://fullhunt.io/host/example.com"
+        },
+        {
+          "href": "https://fullhunt.io/",
+          "anchor": {
+            "tag": "a",
+            "id": null,
+            "classes": [
+              "navbar-brand",
+              "p-0",
+              "ms-3",
+              "ms-md-0",
+              "col",
+              "col-md-auto",
+              "justify-content-start",
+              "justify-content-lg-start"
+            ]
+          },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "nav", "role": null, "id": null },
           "expected": null
         }
       ]

@@ -52,7 +52,7 @@
       id: "netlas",
       label: "Netlas",
       family: "threat-intel-infrastructure",
-      support: "partial",
+      support: "supported",
       hosts: ["app.netlas.io"],
       searchRules: [
         { pathPattern: "^/(?:responses|domains|whois_domains|certificates)/?$", requiredParams: ["q"] },
@@ -141,7 +141,7 @@
       id: "fullhunt",
       label: "FullHunt",
       family: "threat-intel-infrastructure",
-      support: "partial",
+      support: "supported",
       hosts: ["fullhunt.io", "app.fullhunt.io"],
       searchRules: [{ pathPattern: "^/search/?$", requiredParams: ["query"] }],
       resultRules: [
@@ -252,17 +252,6 @@
       hosts: ["threatfox.abuse.ch"],
       searchRules: [{ pathPattern: "^/browse/?$", requiredParams: ["search"] }],
       resultRules: [{ pathPattern: "^/ioc/\\d+/?$", keepParams: [] }],
-    },
-    {
-      id: "feodo-tracker",
-      label: "Feodo Tracker",
-      family: "threat-intel-abuse",
-      support: "partial",
-      hosts: ["feodotracker.abuse.ch"],
-      searchRules: [{ pathPattern: "^/browse/?$", requiredParams: ["search"] }],
-      resultRules: [
-        { pathPattern: "^/browse/(?:host|botnet)/[^/]+/?$", keepParams: [] },
-      ],
     },
     {
       id: "sslbl",

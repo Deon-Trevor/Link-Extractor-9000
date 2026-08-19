@@ -83,7 +83,7 @@ frontend experiments.
 | Censys | Partial | Host, web-property, and certificate reports |
 | ZoomEye | Partial | Host reports |
 | FOFA | Partial | Host reports |
-| Netlas | Partial | Host reports from response, domain, WHOIS, and certificate searches |
+| Netlas | Supported | Host reports from response, domain, WHOIS, and certificate searches |
 | LeakIX | Supported | Host and domain reports |
 | BinaryEdge | Unavailable | The former application redirects to a service-transition notice |
 | GreyNoise Visualizer | Partial | IP and RIOT reports |
@@ -92,7 +92,7 @@ frontend experiments.
 | ONYPHE | Partial | Host reports |
 | 360 Quake | Partial | Hash-routed host and detail pages |
 | PublicWWW | Partial | External websites listed in scoped results |
-| FullHunt | Partial | Domain and host reports |
+| FullHunt | Supported | Domain and host reports |
 | SecurityTrails | Partial | Domain reports from list pages |
 
 ## IOC and threat-graph search
@@ -112,7 +112,7 @@ frontend experiments.
 | --- | --- | --- |
 | URLhaus | Partial | URL records |
 | ThreatFox | Partial | IOC records |
-| Feodo Tracker | Partial | Host and botnet records |
+| Feodo Tracker | Unavailable | IOC values are table text; the public browse page does not link to individual result reports |
 | SSLBL | Supported | Certificate records |
 | Hybrid Analysis | Partial | Sample reports |
 | ANY.RUN | Partial | Analysis tasks |
@@ -130,7 +130,7 @@ adapters recognize pages the user opens; they do not query platform APIs or
 bypass access controls.
 
 Logged-out Firefox 153 captures for Shodan, LeakIX, urlscan.io, SSLBL, and
-PhishTank are retained as sanitized DOM projections in
+PhishTank, Netlas, and FullHunt are retained as sanitized DOM projections in
 `tests/fixtures/firefox-live-threat-intel.json`. They contain anchor metadata and
 expected canonical URLs only, not page text, cookies, complete HTML, or browser
 profile data.

@@ -387,13 +387,6 @@ const threatIntelCases = [
     noise: "https://threatfox.abuse.ch/api/",
   },
   {
-    id: "feodo-tracker",
-    search: "https://feodotracker.abuse.ch/browse/?search=203.0.113.22",
-    result: "https://feodotracker.abuse.ch/browse/host/203.0.113.22/?ref=browse",
-    expected: "https://feodotracker.abuse.ch/browse/host/203.0.113.22/",
-    noise: "https://feodotracker.abuse.ch/blocklists/",
-  },
-  {
     id: "sslbl",
     search: "https://sslbl.abuse.ch/ssl-certificates/?search=example.com",
     result: "https://sslbl.abuse.ch/ssl-certificates/sha1/0123456789abcdef/?ref=search",
@@ -540,7 +533,6 @@ test("includes every active High-fit threat-intelligence adapter", () => {
     "anyrun",
     "censys",
     "criminal-ip",
-    "feodo-tracker",
     "fofa",
     "fullhunt",
     "greynoise",
