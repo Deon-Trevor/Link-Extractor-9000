@@ -452,7 +452,12 @@
   async function updateBadge() {
     const count = collection.urls.length;
     const text = count > 999 ? "999+" : count ? String(count) : "";
-    await extensionApi.action.setBadgeBackgroundColor({ color: "#659315" });
+    // Brand lime with near-black text reads at 8.6:1 on the toolbar. The old
+    // mid-green took whatever text colour Firefox picked for it.
+    await extensionApi.action.setBadgeBackgroundColor({ color: "#7dd320" });
+    if (extensionApi.action.setBadgeTextColor) {
+      await extensionApi.action.setBadgeTextColor({ color: "#17250a" });
+    }
     await extensionApi.action.setBadgeText({ text });
   }
 

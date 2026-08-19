@@ -7,166 +7,150 @@
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <main class="console" aria-labelledby="app-title">
+    <main class="app" aria-labelledby="app-title">
       <header class="masthead">
-        <img class="brand-mark" src="../../assets/logo-mark.svg" alt="" width="38" height="38" />
-        <div>
-          <p class="eyebrow">Field utility / URL collection</p>
-          <h1 id="app-title">Link Extractor <em>9000</em></h1>
-        </div>
-        <span class="live-indicator" title="Collection is stored locally">Local</span>
+        <img class="brand-mark" src="../../assets/logo-mark.svg" alt="" width="30" height="30" />
+        <h1 id="app-title">Link Extractor <em>9000</em></h1>
+        <span class="local-pill" title="Your collection never leaves this device">
+          Stored locally
+        </span>
       </header>
 
-      <section class="page-context" aria-label="Current page">
-        <span class="context-label">Target</span>
-        <strong id="page-host">Reading active tab…</strong>
-        <span id="page-kind" class="context-kind">Page scan</span>
-      </section>
+      <div class="columns">
+        <aside class="pane pane-controls">
+          <section class="target" aria-label="Current page">
+            <h2 class="label">Target</h2>
+            <strong id="page-host">Reading active tab…</strong>
+            <span id="page-kind" class="target-kind">Page scan</span>
+          </section>
 
-      <section id="search-scope" class="scope-panel" hidden>
-        <div class="scope-heading">
-          <span class="scope-signal" aria-hidden="true">!</span>
-          <div>
-            <p class="eyebrow">Search results detected</p>
-            <h2 id="search-engine-label">Choose collection scope</h2>
-          </div>
-        </div>
+          <section id="search-scope" class="scope" hidden>
+            <h2 class="label label-scope">
+              Search results detected
+              <span id="search-engine-label" class="scope-engine">Choose scope</span>
+            </h2>
 
-        <fieldset class="scope-options">
-          <legend class="sr-only">URLs to collect</legend>
-          <label class="scope-option">
-            <input type="radio" name="scope" value="results" checked />
-            <span>
-              <strong>Result URLs only</strong>
-              <small>Skip search controls, navigation and internal links.</small>
-            </span>
-          </label>
-          <label class="scope-option">
-            <input type="radio" name="scope" value="all" />
-            <span>
-              <strong>Every URL on page</strong>
-              <small>Collect every HTTP or HTTPS link currently loaded.</small>
-            </span>
-          </label>
-        </fieldset>
-      </section>
+            <fieldset class="scope-options">
+              <legend class="sr-only">URLs to collect</legend>
+              <label class="scope-option">
+                <input type="radio" name="scope" value="results" checked />
+                <span>
+                  <strong>Result URLs only</strong>
+                  <small>Skip search controls, navigation and internal links.</small>
+                </span>
+              </label>
+              <label class="scope-option">
+                <input type="radio" name="scope" value="all" />
+                <span>
+                  <strong>Every URL on page</strong>
+                  <small>Every HTTP or HTTPS link currently loaded.</small>
+                </span>
+              </label>
+            </fieldset>
+          </section>
 
-      <button id="collect-button" class="collect-button" type="button" disabled>
-        <span class="button-icon" aria-hidden="true">↳</span>
-        <span id="collect-label">Collect page URLs</span>
-      </button>
+          <button id="collect-button" class="collect-button" type="button" disabled>
+            <span id="collect-label">Collect page URLs</span>
+          </button>
 
-      <p id="status" class="status" role="status" aria-live="polite">Ready when you are.</p>
+          <p id="status" class="status" role="status" aria-live="polite">Ready when you are.</p>
 
-      <section class="collection" aria-labelledby="collection-heading">
-        <div class="collection-heading">
-          <div>
-            <p class="eyebrow">Persistent collection</p>
+          <section class="exports">
+            <h2 id="export-label" class="label">Export file</h2>
+            <div class="export-formats" role="group" aria-labelledby="export-label">
+              <button
+                class="ghost-button"
+                type="button"
+                data-export-format="txt"
+                aria-label="Download saved URLs as a TXT file"
+                disabled
+              >
+                TXT
+              </button>
+              <button
+                class="ghost-button"
+                type="button"
+                data-export-format="csv"
+                aria-label="Download saved URLs as a CSV file"
+                disabled
+              >
+                CSV
+              </button>
+              <button
+                class="ghost-button"
+                type="button"
+                data-export-format="json"
+                aria-label="Download saved URLs as a JSON file"
+                disabled
+              >
+                JSON
+              </button>
+            </div>
+          </section>
+
+          <p class="fine-print">Exact duplicates are ignored across every run.</p>
+        </aside>
+
+        <section class="pane pane-collection" aria-labelledby="collection-heading">
+          <div class="collection-head">
             <h2 id="collection-heading">Saved URLs</h2>
+            <p class="count" aria-label="Saved URL count">
+              <strong id="url-count">0</strong>
+              <span>saved</span>
+            </p>
           </div>
-          <div class="count-lockup" aria-label="Saved URL count">
-            <strong id="url-count">0</strong>
-            <span>saved</span>
-          </div>
-        </div>
 
-        <p id="empty-state" class="empty-state">Your collected URLs will wait here between pages.</p>
-
-        <div id="management-panel" class="management-panel" hidden>
-          <div class="management-heading">
-            <label for="collection-filter">Filter collection</label>
-            <span id="filter-count" aria-live="polite">0 of 0</span>
+          <div id="management-panel" class="toolbar" hidden>
+            <div class="field">
+              <label class="sr-only" for="collection-filter">Filter collection</label>
+              <input
+                id="collection-filter"
+                type="search"
+                placeholder="Filter by URL or hostname"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <span id="filter-count" class="filter-count" aria-live="polite">0 of 0</span>
+            </div>
+            <div class="field field-order">
+              <label class="sr-only" for="collection-order">View order</label>
+              <select id="collection-order">
+                <option value="recent">Recent first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="hostname-asc">Hostname A to Z</option>
+                <option value="hostname-desc">Hostname Z to A</option>
+              </select>
+              <button
+                id="dedupe-domains-button"
+                class="ghost-button"
+                type="button"
+                title="Keep the first saved URL for each hostname"
+              >
+                Dedupe domains
+              </button>
+            </div>
           </div>
-          <div class="management-controls">
-            <input
-              id="collection-filter"
-              type="search"
-              placeholder="URL or hostname"
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <button
-              id="dedupe-domains-button"
-              class="dedupe-button"
-              type="button"
-              title="Keep the first saved URL for each hostname"
-            >
-              Dedupe domains
+
+          <p id="empty-state" class="empty-state">
+            Nothing saved yet. Collect a page and your URLs will wait here between visits.
+          </p>
+
+          <ol id="url-preview" class="url-list" aria-label="Saved URLs"></ol>
+
+          <p id="render-note" class="list-note" aria-live="polite" hidden></p>
+          <p id="no-filter-results" class="list-note" hidden>No saved URLs match this filter.</p>
+
+          <div class="collection-actions">
+            <button id="copy-button" class="primary-button" type="button" disabled>Copy all</button>
+            <button id="copy-visible-button" class="ghost-button" type="button" disabled>
+              Copy visible
             </button>
+
+
+            <button id="clear-button" class="danger-button" type="button" disabled>Clear</button>
           </div>
-          <div class="view-controls">
-            <label for="collection-order">View order</label>
-            <select id="collection-order">
-              <option value="recent">Recent first</option>
-              <option value="oldest">Oldest first</option>
-              <option value="hostname-asc">Hostname A–Z</option>
-              <option value="hostname-desc">Hostname Z–A</option>
-            </select>
-          </div>
-        </div>
-
-        <ol id="url-preview" class="url-preview" aria-label="Saved URLs"></ol>
-        <p id="render-note" class="render-note" aria-live="polite" hidden></p>
-        <p id="no-filter-results" class="no-filter-results" hidden>
-          No saved URLs match this filter.
-        </p>
-
-        <div class="export-bank">
-          <span id="export-label" class="export-label">Export file</span>
-          <div class="export-formats" role="group" aria-labelledby="export-label">
-            <button
-              class="export-button"
-              type="button"
-              data-export-format="txt"
-              aria-label="Download saved URLs as a TXT file"
-              disabled
-            >
-              <span aria-hidden="true">↓</span> TXT
-            </button>
-            <button
-              class="export-button"
-              type="button"
-              data-export-format="csv"
-              aria-label="Download saved URLs as a CSV file"
-              disabled
-            >
-              <span aria-hidden="true">↓</span> CSV
-            </button>
-            <button
-              class="export-button"
-              type="button"
-              data-export-format="json"
-              aria-label="Download saved URLs as a JSON file"
-              disabled
-            >
-              <span aria-hidden="true">↓</span> JSON
-            </button>
-          </div>
-        </div>
-
-        <div class="collection-actions">
-          <button
-            id="copy-visible-button"
-            class="secondary-button copy-visible-button"
-            type="button"
-            disabled
-          >
-            Copy visible
-          </button>
-          <button id="copy-button" class="secondary-button copy-button" type="button" disabled>
-            Copy all
-          </button>
-          <button id="clear-button" class="secondary-button clear-button" type="button" disabled>
-            Clear
-          </button>
-        </div>
-      </section>
-
-      <footer>
-        <span>Exact duplicates are ignored</span>
-        <span aria-hidden="true">●</span>
-        <span>Stored on this device</span>
-      </footer>
+        </section>
+      </div>
     </main>
 
     <script src="../lib/search-adapters.js"></script>
