@@ -553,6 +553,16 @@ h2 {
   text-align: center;
 }
 
+.render-note {
+  margin: -2px 0 8px;
+  color: var(--muted);
+  font-family: ui-monospace, "Cascadia Code", "Liberation Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  line-height: 1.45;
+  text-align: center;
+}
+
 .no-filter-results {
   margin: 7px 0 8px;
   padding: 9px;

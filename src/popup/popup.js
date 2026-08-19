@@ -37,6 +37,7 @@
     pageHost: document.getElementById("page-host"),
     pageKind: document.getElementById("page-kind"),
     preview: document.getElementById("url-preview"),
+    renderNote: document.getElementById("render-note"),
     scopePanel: document.getElementById("search-scope"),
     searchEngineLabel: document.getElementById("search-engine-label"),
     status: document.getElementById("status"),
@@ -403,6 +404,16 @@
     elements.noFilterResults.hidden = count === 0 || visibleUrls.length > 0;
     elements.preview.hidden = count === 0 || visibleUrls.length === 0;
     elements.preview.replaceChildren();
+
+    // The list renders at most MAX_RENDERED_URLS rows to keep the popup quick.
+    // Say so, otherwise a large collection looks silently truncated.
+    const listIsCapped = visibleUrls.length > MAX_RENDERED_URLS;
+    elements.renderNote.hidden = !listIsCapped;
+    elements.renderNote.textContent = listIsCapped
+      ? `Showing the first ${MAX_RENDERED_URLS.toLocaleString()} of ` +
+        `${visibleUrls.length.toLocaleString()} matching URLs. ` +
+        "Copy and export use the full list."
+      : "";
 
     let previousHostname = null;
     const groupByHostname = elements.orderSelect.value.startsWith("hostname-");
