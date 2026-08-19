@@ -1,6 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const firefoxLiveSearch = require("./fixtures/firefox-live-search.json");
+const firefoxLiveThreatIntel = require("./fixtures/firefox-live-threat-intel.json");
 
 const extractLinksFromPage = require("../src/content/extract-links.js");
 const {
@@ -8,6 +9,7 @@ const {
   detectNativeSearchEngine,
   getSearchAdapter,
 } = require("../src/lib/search-adapters.js");
+const serializedExtractor = Function(`return (${extractLinksFromPage.toString()})`)();
 
 const cases = [
   {
@@ -598,8 +600,6 @@ test("does not classify ordinary platform homepages as search results", () => {
 });
 
 test("serialized extraction keeps platform results and rejects navigation", async (context) => {
-  const injectedExtractor = Function(`return (${extractLinksFromPage.toString()})`)();
-
   for (const scenario of adapterCases) {
     await context.test(scenario.id, () => {
       const adapter = JSON.parse(JSON.stringify(getSearchAdapter(scenario.id)));
@@ -608,7 +608,7 @@ test("serialized extraction keeps platform results and rejects navigation", asyn
         anchor(scenario.result),
       ]);
       const result = withPage(scenario.search, page, () =>
-        injectedExtractor({ scope: "results", engine: scenario.id, adapter }),
+        serializedExtractor({ scope: "results", engine: scenario.id, adapter }),
       );
 
       assert.deepEqual(result.urls, [scenario.expected]);
@@ -695,8 +695,6 @@ test("sanitized Firefox live DOM projections preserve result filtering", async (
   assert.equal(firefoxLiveSearch.schemaVersion, 1);
   assert.match(firefoxLiveSearch.browser, /^Firefox /);
 
-  const injectedExtractor = Function(`return (${extractLinksFromPage.toString()})`)();
-
   for (const fixture of firefoxLiveSearch.cases) {
     await context.test(fixture.platform, () => {
       const adapter = JSON.parse(
@@ -704,7 +702,38 @@ test("sanitized Firefox live DOM projections preserve result filtering", async (
       );
       const page = fakeDocument(fixture.anchors.map(capturedAnchor));
       const result = withPage(fixture.pageUrl, page, () =>
-        injectedExtractor({
+        serializedExtractor({
+          scope: "results",
+          engine: fixture.platform,
+          adapter,
+        }),
+      );
+
+      assert.deepEqual(
+        result.urls,
+        fixture.anchors.flatMap((anchorRecord) =>
+          anchorRecord.expected ? [anchorRecord.expected] : [],
+        ),
+      );
+    });
+  }
+});
+
+test("sanitized Firefox threat-intel DOM projections preserve result filtering", async (context) => {
+  assert.equal(firefoxLiveThreatIntel.schemaVersion, 1);
+  assert.equal(firefoxLiveThreatIntel.captureKind, "logged-out-public");
+  assert.match(firefoxLiveThreatIntel.browser, /^Firefox /);
+
+  for (const fixture of firefoxLiveThreatIntel.cases) {
+    await context.test(fixture.platform, () => {
+      const adapter = JSON.parse(
+        JSON.stringify(getSearchAdapter(fixture.platform)),
+      );
+      assert.equal(adapter.support, "supported");
+
+      const page = fakeDocument(fixture.anchors.map(capturedAnchor));
+      const result = withPage(fixture.pageUrl, page, () =>
+        serializedExtractor({
           scope: "results",
           engine: fixture.platform,
           adapter,

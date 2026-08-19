@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-19T15:13:46+02:00",
+  "browser": "Firefox 153.0.4",
+  "captureKind": "logged-out-public",
+  "cases": [
+    {
+      "platform": "shodan",
+      "query": "nginx",
+      "pageUrl": "https://www.shodan.io/search?query=nginx",
+      "observed": { "anchors": 123, "extracted": 10 },
+      "anchors": [
+        {
+          "href": "https://www.shodan.io/host/138.113.216.151",
+          "anchor": { "tag": "a", "id": null, "classes": ["title", "text-dark"] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://www.shodan.io/host/138.113.216.151"
+        },
+        {
+          "href": "https://www.shodan.io/host/153.43.185.221",
+          "anchor": { "tag": "a", "id": null, "classes": ["title", "text-dark"] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://www.shodan.io/host/153.43.185.221"
+        },
+        {
+          "href": "https://www.shodan.io/",
+          "anchor": { "tag": "a", "id": null, "classes": ["title"] },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "nav", "role": null, "id": null },
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "leakix",
+      "query": "nginx",
+      "pageUrl": "https://leakix.net/search?q=nginx&scope=leak&page=0",
+      "observed": { "anchors": 286, "extracted": 20 },
+      "anchors": [
+        {
+          "href": "https://leakix.net/domain/csgoempirecasino.com",
+          "anchor": { "tag": "a", "id": null, "classes": [] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://leakix.net/domain/csgoempirecasino.com"
+        },
+        {
+          "href": "https://leakix.net/domain/hub.opscc.cn",
+          "anchor": { "tag": "a", "id": null, "classes": [] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://leakix.net/domain/hub.opscc.cn"
+        },
+        {
+          "href": "https://leakix.net/",
+          "anchor": { "tag": "a", "id": null, "classes": ["navbar-brand"] },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "nav", "role": null, "id": null },
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "urlscan",
+      "query": "domain:example.com",
+      "pageUrl": "https://urlscan.io/search/?q=domain%3Aexample.com#*",
+      "observed": { "anchors": 136, "extracted": 100 },
+      "anchors": [
+        {
+          "href": "https://urlscan.io/result/01a01a26-a953-7551-9810-079594dce786/",
+          "anchor": { "tag": "a", "id": null, "classes": [] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://urlscan.io/result/01a01a26-a953-7551-9810-079594dce786/"
+        },
+        {
+          "href": "https://urlscan.io/result/01a01a26-497a-7550-8ca1-393c815dfb9b/",
+          "anchor": { "tag": "a", "id": null, "classes": [] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://urlscan.io/result/01a01a26-497a-7550-8ca1-393c815dfb9b/"
+        },
+        {
+          "href": "https://urlscan.io/",
+          "anchor": {
+            "tag": "a",
+            "id": null,
+            "classes": [
+              "navbar-brand",
+              "navbar-brand-img",
+              "d-none",
+              "d-md-inline-block",
+              "paddingleft5pxpaddingright5px"
+            ]
+          },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "nav", "role": null, "id": null },
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "sslbl",
+      "query": "example.com",
+      "pageUrl": "https://sslbl.abuse.ch/ssl-certificates/?search=example.com",
+      "observed": { "anchors": 66, "extracted": 50 },
+      "anchors": [
+        {
+          "href": "https://sslbl.abuse.ch/ssl-certificates/sha1/ab53f86d2ce32d9306f431e8e82f39cb31f48a53/",
+          "anchor": { "tag": "a", "id": null, "classes": [] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://sslbl.abuse.ch/ssl-certificates/sha1/ab53f86d2ce32d9306f431e8e82f39cb31f48a53/"
+        },
+        {
+          "href": "https://sslbl.abuse.ch/ssl-certificates/sha1/304062e0d9d93dad14b84554abb56fd3af8266ff/",
+          "anchor": { "tag": "a", "id": null, "classes": [] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://sslbl.abuse.ch/ssl-certificates/sha1/304062e0d9d93dad14b84554abb56fd3af8266ff/"
+        },
+        {
+          "href": "https://sslbl.abuse.ch/",
+          "anchor": { "tag": "a", "id": null, "classes": ["navbar-brand"] },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "nav", "role": null, "id": null },
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "phishtank",
+      "query": "123456",
+      "pageUrl": "https://www.phishtank.org/phish_search.php?phish_id=123456",
+      "observed": { "anchors": 61, "extracted": 20 },
+      "anchors": [
+        {
+          "href": "https://www.phishtank.org/phish_detail.php?phish_id=9507582",
+          "anchor": { "tag": "a", "id": null, "classes": [] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://www.phishtank.org/phish_detail.php?phish_id=9507582"
+        },
+        {
+          "href": "https://www.phishtank.org/phish_detail.php?phish_id=9507581",
+          "anchor": { "tag": "a", "id": null, "classes": [] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://www.phishtank.org/phish_detail.php?phish_id=9507581"
+        },
+        {
+          "href": "https://talosintelligence.com/",
+          "anchor": { "tag": "a", "id": null, "classes": [] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": null
+        }
+      ]
+    }
+  ]
+}

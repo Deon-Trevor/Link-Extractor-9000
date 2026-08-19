@@ -6,6 +6,11 @@ anchors, adapter scope matches, navigation landmarks, and expected canonical
 URLs. Page text, cookies, browser-profile data, tracking tokens, and complete
 HTML are deliberately excluded.
 
+`firefox-live-threat-intel.json` applies the same projection to logged-out,
+public threat-intelligence result pages. It is kept separate so a refresh of
+fast-changing threat data does not rewrite the historical social and streaming
+capture.
+
 These fixtures are deterministic regression inputs, not proof that a platform
 is still unchanged. Refresh them only after inspecting the live page in Firefox,
 and retain the capture browser, timestamp, source route, and observed counts.
