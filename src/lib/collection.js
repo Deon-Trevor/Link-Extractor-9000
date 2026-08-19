@@ -16,6 +16,22 @@
   "use strict";
 
   const STORAGE_KEY = "urlCollection";
+  const UTF8_PERCENT_SEQUENCE =
+    /%(?:C[2-9A-F]|D[0-9A-F])%[89AB][0-9A-F]|%E[0-9A-F](?:%[89AB][0-9A-F]){2}|%F[0-4](?:%[89AB][0-9A-F]){3}/gi;
+
+  function normalizeHttpUrl(value) {
+    if (!isHttpUrl(value)) {
+      return null;
+    }
+
+    return value.replace(UTF8_PERCENT_SEQUENCE, (sequence) => {
+      try {
+        return decodeURIComponent(sequence);
+      } catch {
+        return sequence;
+      }
+    });
+  }
 
   function isPotentialSearchResultsPage(rawUrl) {
     let url;
@@ -96,7 +112,11 @@
 
   function normalizeCollection(value) {
     if (Array.isArray(value)) {
-      return { version: 1, urls: value.filter(isHttpUrl), updatedAt: null };
+      return {
+        version: 1,
+        urls: value.map(normalizeHttpUrl).filter(Boolean),
+        updatedAt: null,
+      };
     }
 
     if (!value || !Array.isArray(value.urls)) {
@@ -105,7 +125,7 @@
 
     return {
       version: 1,
-      urls: value.urls.filter(isHttpUrl),
+      urls: value.urls.map(normalizeHttpUrl).filter(Boolean),
       updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : null,
     };
   }
@@ -117,16 +137,18 @@
     let duplicates = 0;
     let rejected = 0;
 
-    for (const url of existingUrls || []) {
-      if (!isHttpUrl(url) || seen.has(url)) {
+    for (const value of existingUrls || []) {
+      const url = normalizeHttpUrl(value);
+      if (!url || seen.has(url)) {
         continue;
       }
       seen.add(url);
       urls.push(url);
     }
 
-    for (const url of incomingUrls || []) {
-      if (!isHttpUrl(url)) {
+    for (const value of incomingUrls || []) {
+      const url = normalizeHttpUrl(value);
+      if (!url) {
         rejected += 1;
       } else if (seen.has(url)) {
         duplicates += 1;

@@ -93,6 +93,27 @@ test("normalizes missing and legacy collection values", () => {
   });
 });
 
+test("decodes UTF-8 URL escapes without decoding reserved ASCII characters", () => {
+  const encoded =
+    "https://apkpure.com/%EC%8A%A4%ED%83%80%EC%9D%BC%EB%8B%B7%EC%BB%B4-%ED%8C%A8%EC%85%98%EB%B8%8C%EB%9E%9C%EB%93%9C-%EB%AA%A8%EC%9D%8C/com.sta1.front";
+  const readable = "https://apkpure.com/스타일닷컴-패션브랜드-모음/com.sta1.front";
+
+  assert.deepEqual(normalizeCollection([encoded]), {
+    version: 1,
+    urls: [readable],
+    updatedAt: null,
+  });
+  assert.deepEqual(
+    mergeUrls([encoded], [readable, "https://example.com/a%2Fb%3Fc%23d"]),
+    {
+      urls: [readable, "https://example.com/a%2Fb%3Fc%23d"],
+      added: 1,
+      duplicates: 1,
+      rejected: 0,
+    },
+  );
+});
+
 test("filters saved URLs by full URL or hostname without changing capture order", () => {
   const urls = [
     "https://one.example/reports/Alpha",
