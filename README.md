@@ -40,7 +40,9 @@ Add-on, and pick `dist/firefox/manifest.json`. Firefox drops temporary add-ons
 when it restarts.
 
 **Chrome.** Open `chrome://extensions`, turn on Developer mode, choose Load
-unpacked, and pick `dist/chromium`.
+unpacked, and pick `dist/chromium`. Full steps, including how to update without
+losing your collection, are in
+[`chromium/INSTALLATION.md`](chromium/INSTALLATION.md).
 
 ## Development
 
@@ -52,6 +54,7 @@ browsers share lives in the root. The only per-platform file is the manifest, in
 npm test             # unit tests
 npm run check        # syntax, manifests, icons, popup contrast and type scale
 npm run package      # build dist/firefox and dist/chromium, plus a zip each
+npm run verify:firefox # drive the Firefox build in a real headless Firefox
 npm run verify:chrome  # drive the Chrome build in a real headless Chrome
 ```
 

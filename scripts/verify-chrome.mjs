@@ -174,10 +174,45 @@ async function run() {
       `--user-data-dir=${profile}`,
       "about:blank",
     ],
-    { stdio: ["ignore", "ignore", "pipe"] },
+    // detached puts chrome in its own process group, which is the only way to
+    // reach its dozen child processes in one signal.
+    { stdio: ["ignore", "ignore", "pipe"], detached: true },
   );
   const chromeLog = [];
   chrome.stderr.on("data", (chunk) => chromeLog.push(chunk.toString()));
+
+  // Ctrl-C, or the shell dying, used to strand a headless Chrome and a profile
+  // worth tens of MB in /tmp. A SIGKILL still cannot be caught, but these can.
+  // Signal the whole group. Killing only the parent leaves the children alive
+  // long enough to recreate the profile directory after it is removed.
+  const stopChrome = (sig) => {
+    try {
+      process.kill(-chrome.pid, sig);
+    } catch {
+      chrome.kill(sig);
+    }
+  };
+
+  const bail = (signal) => {
+    stopChrome("SIGKILL");
+    // Chrome runs a dozen child processes that are still writing as the parent
+    // dies, so a single rmSync loses the race with ENOTEMPTY. Retry, then say
+    // what actually happened rather than assuming it worked.
+    let removed = false;
+    try {
+      fs.rmSync(profile, { recursive: true, force: true, maxRetries: 20, retryDelay: 150 });
+      removed = !fs.existsSync(profile);
+    } catch {
+      removed = false;
+    }
+    server.close();
+    console.log(
+      `\n${signal}: stopped chrome, ` +
+        (removed ? "removed the temp profile" : `temp profile left at ${profile}`),
+    );
+    process.exit(130);
+  };
+  for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) process.once(signal, () => bail(signal));
 
   let socket = null;
   const pending = new Map();
@@ -195,6 +230,27 @@ async function run() {
         }
       }, 20000);
     });
+  }
+
+  // Screenshots are the flakiest call here: a busy machine can push
+  // Page.captureScreenshot past the timeout even though the page is fine. Retry
+  // once, and treat a second failure as a missing screenshot rather than a failed
+  // run, because the checks that matter read the DOM.
+  async function captureScreenshot(sessionId, file) {
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      try {
+        const shot = await send("Page.captureScreenshot", { format: "png" }, sessionId);
+        fs.writeFileSync(file, Buffer.from(shot.data, "base64"));
+        return true;
+      } catch (error) {
+        if (attempt === 2) {
+          console.log(`  note  screenshot ${path.basename(file)} failed twice: ${error.message}`);
+          return false;
+        }
+        await wait(1000);
+      }
+    }
+    return false;
   }
 
   // Returns the JSON-parsed value of an expression evaluated in a page.
@@ -327,8 +383,7 @@ async function run() {
     record("logo resolves inside the extension origin", popup.logoLoaded === true,
       popup.logoLoaded ? "decoded" : "did not decode");
 
-    const emptyShot = await send("Page.captureScreenshot", { format: "png" }, popupSession);
-    fs.writeFileSync(path.join(evidenceDir, "popup.png"), Buffer.from(emptyShot.data, "base64"));
+    await captureScreenshot(popupSession, path.join(evidenceDir, "popup.png"));
 
     // Seed through the popup's own chrome.storage, then reload. This is a render
     // check: it skips the code that normally stores URLs.
@@ -384,8 +439,7 @@ async function run() {
       `app ${list.appWidth}x${list.appHeight}, clear button inside: ${list.clearFits}`,
     );
 
-    const fullShot = await send("Page.captureScreenshot", { format: "png" }, popupSession);
-    fs.writeFileSync(path.join(evidenceDir, "popup-capped.png"), Buffer.from(fullShot.data, "base64"));
+    await captureScreenshot(popupSession, path.join(evidenceDir, "popup-capped.png"));
 
     // Chrome exposes Extensions.triggerAction, which is the toolbar click that
     // Firefox would not let the other harness reach. If it opens a drivable
@@ -497,7 +551,7 @@ async function run() {
       if (socket) socket.close();
       // Kill the pid this run spawned. Never by name: the developer's own Chrome
       // is very likely running.
-      chrome.kill("SIGTERM");
+      stopChrome("SIGTERM");
       // Chrome writes to its profile on the way out, so wait before removing it.
       await new Promise((resolve) => {
         if (chrome.exitCode !== null) return resolve();
@@ -505,7 +559,7 @@ async function run() {
         setTimeout(resolve, 5000);
       });
       try {
-        fs.rmSync(profile, { recursive: true, force: true });
+        fs.rmSync(profile, { recursive: true, force: true, maxRetries: 20, retryDelay: 150 });
       } catch {
         // a stray temp profile is not worth failing the run over
       }
