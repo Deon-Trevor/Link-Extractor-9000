@@ -94,6 +94,15 @@
               Dedupe domains
             </button>
           </div>
+          <div class="view-controls">
+            <label for="collection-order">View order</label>
+            <select id="collection-order">
+              <option value="recent">Recent first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="hostname-asc">Hostname A–Z</option>
+              <option value="hostname-desc">Hostname Z–A</option>
+            </select>
+          </div>
         </div>
 
         <ol id="url-preview" class="url-preview" aria-label="Saved URLs"></ol>
@@ -135,6 +144,14 @@
         </div>
 
         <div class="collection-actions">
+          <button
+            id="copy-visible-button"
+            class="secondary-button copy-visible-button"
+            type="button"
+            disabled
+          >
+            Copy visible
+          </button>
           <button id="copy-button" class="secondary-button copy-button" type="button" disabled>
             Copy all
           </button>

@@ -177,13 +177,17 @@
       const host = url.hostname.toLowerCase();
       return (
         adapter.resultRules.find((rule) => {
-          const validHost = rule.sameHost
-            ? host === pageUrl.hostname.toLowerCase()
-            : hostMatches(host, rule.hosts || adapter.hosts);
+          let validHost = hostMatches(host, rule.hosts || adapter.hosts);
+          if (rule.external) {
+            validHost = !hostMatches(host, adapter.hosts);
+          } else if (rule.sameHost) {
+            validHost = host === pageUrl.hostname.toLowerCase();
+          }
 
           return (
             validHost &&
             new RegExp(rule.pathPattern).test(url.pathname) &&
+            (!rule.hashPattern || new RegExp(rule.hashPattern).test(url.hash)) &&
             (rule.requiredParams || []).every((parameter) =>
               url.searchParams.has(parameter),
             )
@@ -194,7 +198,9 @@
 
     function canonicalizeAdapterUrl(url, rule) {
       const canonical = new URL(url.href);
-      canonical.hash = "";
+      if (!rule.keepHash) {
+        canonical.hash = "";
+      }
 
       if (Array.isArray(rule.keepParams)) {
         for (const parameter of Array.from(canonical.searchParams.keys())) {

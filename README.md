@@ -17,6 +17,8 @@ Link Extractor 9000 is a Firefox-first browser extension for collecting URLs acr
 - Append new URLs to persistent local extension storage.
 - Ignore exact duplicates while preserving capture order.
 - Filter the saved collection by URL or hostname and remove individual entries.
+- Copy only the filtered URLs in the current view order.
+- Sort the collection view by capture time or group it by hostname without changing saved data.
 - Optionally keep only the first captured URL for each hostname.
 - Copy the complete collection as one URL per line.
 - Download the complete collection as TXT, CSV, or JSON.
@@ -65,12 +67,21 @@ Video, Disney+, Max, Hulu, and Tubi. See
 [`docs/platform-support.md`](docs/platform-support.md) for support levels and
 known limitations.
 
+High-fit threat-intelligence coverage now includes infrastructure search,
+IOC/threat graphs, sandbox reports, malware feeds, and phishing databases. The
+extension only filters links already rendered in an open page; it does not call
+paid APIs, automate searches, or bypass authentication. The support matrix
+distinguishes verified public result links from login-gated and client-rendered
+partial adapters in
+[`docs/platform-support.md`](docs/platform-support.md).
+
 ### Copy, export, or clear the collection
 
-- Type in **Filter collection** to narrow the visible list by URL or hostname. Filtering does not change copied or exported data.
+- Type in **Filter collection** to narrow the visible list by URL or hostname.
+- Use **View order** to show recent URLs first, oldest URLs first, or group them by hostname in either direction. View changes do not modify the saved collection.
 - Select the × beside a URL to remove that entry from the saved collection.
 - Select **Dedupe domains**, then confirm, to keep the first captured URL for each hostname. `www.` and the bare hostname are treated as the same; other subdomains remain separate.
-- Select **Copy all** to place the complete collection on the clipboard, with one URL per line. Copying does not clear it.
+- Select **Copy visible** to copy the filtered URLs in the selected view order, or **Copy all** to copy the complete collection in capture order. Copying does not clear it.
 - Select **TXT**, **CSV**, or **JSON** under **Export file** to download the complete collection in that format. Exporting does not clear it.
 - Select **Clear**, then **Confirm clear**, to permanently empty the collection.
 - The number on the extension's toolbar badge is the current saved URL count.

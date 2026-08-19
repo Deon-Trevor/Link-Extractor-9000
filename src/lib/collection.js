@@ -160,6 +160,29 @@
     });
   }
 
+  function orderUrlsForView(urls, order = "recent") {
+    const entries = (urls || []).filter(isHttpUrl).map((url, index) => ({
+      url,
+      index,
+      hostname: new URL(url).hostname.toLowerCase().replace(/^www\./, ""),
+    }));
+
+    if (order === "oldest") {
+      return entries.map((entry) => entry.url);
+    }
+
+    if (order === "hostname-asc" || order === "hostname-desc") {
+      const direction = order === "hostname-desc" ? -1 : 1;
+      entries.sort((left, right) => {
+        const hostnameOrder = left.hostname.localeCompare(right.hostname);
+        return hostnameOrder ? hostnameOrder * direction : left.index - right.index;
+      });
+      return entries.map((entry) => entry.url);
+    }
+
+    return entries.reverse().map((entry) => entry.url);
+  }
+
   function removeUrl(urls, targetUrl) {
     const retained = [];
     let removed = 0;
@@ -275,6 +298,7 @@
     isPotentialSearchResultsPage,
     mergeUrls,
     normalizeCollection,
+    orderUrlsForView,
     removeUrl,
     toClipboardText,
   };

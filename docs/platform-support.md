@@ -75,10 +75,66 @@ These catalog adapters are intentionally marked partial because their rendered
 search results depend heavily on login state, subscription, region, and active
 frontend experiments.
 
+## Threat-intelligence infrastructure search
+
+| Platform | Level | Result URL types |
+| --- | --- | --- |
+| Shodan | Supported | Host reports |
+| Censys | Partial | Host, web-property, and certificate reports |
+| ZoomEye | Partial | Host reports |
+| FOFA | Partial | Host reports |
+| Netlas | Partial | Host reports from response, domain, WHOIS, and certificate searches |
+| LeakIX | Supported | Host and domain reports |
+| BinaryEdge | Unavailable | The former application redirects to a service-transition notice |
+| GreyNoise Visualizer | Partial | IP and RIOT reports |
+| Criminal IP | Partial | Asset reports |
+| Hunter.how | Partial | Host reports |
+| ONYPHE | Partial | Host reports |
+| 360 Quake | Partial | Hash-routed host and detail pages |
+| PublicWWW | Partial | External websites listed in scoped results |
+| FullHunt | Partial | Domain and host reports |
+| SecurityTrails | Partial | Domain reports from list pages |
+
+## IOC and threat-graph search
+
+| Platform | Level | Result URL types |
+| --- | --- | --- |
+| urlscan.io | Supported | Scan results, domains, IPs, and ASNs |
+| VirusTotal | Partial | Domain, IP, URL, and file reports |
+| LevelBlue AlienVault OTX | Partial | Pulses and indicators |
+| Pulsedive | Partial | Indicators and threats |
+| ThreatMiner | Partial | Host, domain, sample, and report pages |
+| Microsoft Defender Threat Intelligence | Partial | Authenticated intelligence-search pages |
+
+## Malware, botnet, and phishing search
+
+| Platform | Level | Result URL types |
+| --- | --- | --- |
+| URLhaus | Partial | URL records |
+| ThreatFox | Partial | IOC records |
+| Feodo Tracker | Partial | Host and botnet records |
+| SSLBL | Supported | Certificate records |
+| Hybrid Analysis | Partial | Sample reports |
+| ANY.RUN | Partial | Analysis tasks |
+| Hatching Triage | Partial | Analysis reports |
+| Joe Sandbox Cloud | Partial | Analysis reports |
+| PhishTank | Supported | Phish records |
+| PhishStats | Partial | External phishing URLs in scoped results |
+
+The threat-intelligence matrix was route-checked on 2026-08-19. `Supported`
+entries have automated route and extraction coverage plus public result-link
+evidence. `Partial` entries have the same declarative matcher coverage, but live
+result DOM could not be fully proven because of authentication, anti-bot gates,
+client-side rendering, regional routing, or account-tier differences. These
+adapters recognize pages the user opens; they do not query platform APIs or
+bypass access controls.
+
 ## Behaviour and limitations
 
 - Result-only mode uses stable URL shapes and removes non-semantic tracking
   parameters while preserving identifiers required to open the result.
+- Hash-routed result identifiers are preserved where the fragment is part of the
+  platform route. External result URLs keep their query parameters and fragments.
 - Every-URL mode remains unchanged and collects all loaded HTTP and HTTPS links.
 - Only currently loaded links are available. Scroll or load additional results,
   then collect again to append them.

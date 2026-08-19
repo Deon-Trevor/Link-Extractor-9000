@@ -40,7 +40,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -366,7 +367,8 @@ h2 {
 }
 
 .management-heading,
-.management-controls {
+.management-controls,
+.view-controls {
   display: flex;
   align-items: center;
 }
@@ -409,6 +411,34 @@ h2 {
 }
 
 .management-controls input:focus {
+  border-color: var(--amber);
+}
+
+.view-controls {
+  justify-content: space-between;
+  margin-top: 6px;
+  gap: 8px;
+  color: var(--muted);
+  font-family: ui-monospace, "Cascadia Code", "Liberation Mono", monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.view-controls select {
+  min-height: 29px;
+  flex: 1;
+  padding: 0 7px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--canvas-deep);
+  color: var(--ink);
+  font-family: ui-monospace, "Cascadia Code", "Liberation Mono", monospace;
+  font-size: 9px;
+}
+
+.view-controls select:focus {
   border-color: var(--amber);
 }
 
@@ -463,6 +493,23 @@ h2 {
   flex: 0 0 auto;
   color: var(--signal);
   content: "↗";
+}
+
+.url-preview .hostname-group {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 5px 6px;
+  border-block: 1px solid rgb(199 255 74 / 22%);
+  background: var(--surface);
+  color: var(--signal);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.url-preview .hostname-group::before {
+  content: "▾";
 }
 
 .url-preview span {
@@ -591,6 +638,16 @@ h2 {
 .copy-button {
   flex: 1;
   border-color: rgb(199 255 74 / 55%);
+}
+
+.copy-visible-button {
+  flex: 1.25;
+  border-color: rgb(255 189 89 / 55%);
+}
+
+.copy-visible-button:hover:not(:disabled) {
+  border-color: var(--amber);
+  background: rgb(255 189 89 / 8%);
 }
 
 .copy-button:hover:not(:disabled) {

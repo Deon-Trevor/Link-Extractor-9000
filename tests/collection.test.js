@@ -9,6 +9,7 @@ const {
   isPotentialSearchResultsPage,
   mergeUrls,
   normalizeCollection,
+  orderUrlsForView,
   removeUrl,
   toClipboardText,
 } = require("../src/lib/collection.js");
@@ -106,6 +107,36 @@ test("filters saved URLs by full URL or hostname without changing capture order"
     "https://news.test/reports/beta",
   ]);
   assert.deepEqual(filterUrls(urls, "  "), urls.slice(0, 3));
+});
+
+test("orders URL views without changing the source collection", () => {
+  const urls = [
+    "https://www.example.com/first",
+    "https://two.example/one",
+    "https://example.com/second",
+    "https://alpha.example/report",
+  ];
+
+  assert.deepEqual(orderUrlsForView(urls), urls.slice().reverse());
+  assert.deepEqual(orderUrlsForView(urls, "oldest"), urls);
+  assert.deepEqual(orderUrlsForView(urls, "hostname-asc"), [
+    "https://alpha.example/report",
+    "https://www.example.com/first",
+    "https://example.com/second",
+    "https://two.example/one",
+  ]);
+  assert.deepEqual(orderUrlsForView(urls, "hostname-desc"), [
+    "https://two.example/one",
+    "https://www.example.com/first",
+    "https://example.com/second",
+    "https://alpha.example/report",
+  ]);
+  assert.deepEqual(urls, [
+    "https://www.example.com/first",
+    "https://two.example/one",
+    "https://example.com/second",
+    "https://alpha.example/report",
+  ]);
 });
 
 test("removes an exact saved URL while preserving the remaining order", () => {

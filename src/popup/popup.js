@@ -12,6 +12,7 @@
     isPotentialSearchResultsPage,
     mergeUrls,
     normalizeCollection,
+    orderUrlsForView,
     removeUrl,
     toClipboardText,
   } = globalThis.LinkExtractor9000;
@@ -23,12 +24,14 @@
     collectButton: document.getElementById("collect-button"),
     collectLabel: document.getElementById("collect-label"),
     copyButton: document.getElementById("copy-button"),
+    copyVisibleButton: document.getElementById("copy-visible-button"),
     count: document.getElementById("url-count"),
     dedupeButton: document.getElementById("dedupe-domains-button"),
     emptyState: document.getElementById("empty-state"),
     exportButtons: Array.from(document.querySelectorAll("[data-export-format]")),
     filterCount: document.getElementById("filter-count"),
     filterInput: document.getElementById("collection-filter"),
+    orderSelect: document.getElementById("collection-order"),
     managementPanel: document.getElementById("management-panel"),
     noFilterResults: document.getElementById("no-filter-results"),
     pageHost: document.getElementById("page-host"),
@@ -49,6 +52,7 @@
 
   elements.collectButton.addEventListener("click", collectCurrentPage);
   elements.copyButton.addEventListener("click", copyCollection);
+  elements.copyVisibleButton.addEventListener("click", copyVisibleCollection);
   elements.clearButton.addEventListener("click", clearCollection);
   elements.dedupeButton.addEventListener("click", dedupeCollectionByHostname);
   elements.filterInput.addEventListener("input", () => {
@@ -59,6 +63,11 @@
     if (confirmationWasArmed) {
       setStatus("Confirmation cancelled.");
     }
+  });
+  elements.orderSelect.addEventListener("change", () => {
+    resetClearButton();
+    resetDedupeButton();
+    renderCollection();
   });
   elements.preview.addEventListener("click", removeCollectedUrl);
   elements.exportButtons.forEach((button) => {
@@ -222,6 +231,23 @@
     }
   }
 
+  async function copyVisibleCollection() {
+    const visibleUrls = visibleCollectionUrls();
+    if (!visibleUrls.length) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(toClipboardText(visibleUrls));
+      setStatus(
+        `${visibleUrls.length} visible URL${visibleUrls.length === 1 ? "" : "s"} copied to clipboard.`,
+        "success",
+      );
+    } catch (error) {
+      setStatus(`Clipboard failed: ${cleanError(error)}`, "error");
+    }
+  }
+
   function downloadCollection(event) {
     if (!collection.urls.length) {
       return;
@@ -359,24 +385,36 @@
 
   function renderCollection() {
     const count = collection.urls.length;
-    const filteredUrls = filterUrls(collection.urls, elements.filterInput.value);
+    const visibleUrls = visibleCollectionUrls();
     const domainDuplicates = dedupeUrlsByHostname(collection.urls).removed;
     elements.count.textContent = count.toLocaleString();
     elements.copyButton.disabled = count === 0;
+    elements.copyVisibleButton.disabled = visibleUrls.length === 0;
+    elements.copyVisibleButton.textContent = `Copy visible (${visibleUrls.length.toLocaleString()})`;
     elements.clearButton.disabled = count === 0;
     elements.exportButtons.forEach((button) => {
       button.disabled = count === 0;
     });
     elements.dedupeButton.disabled = count === 0 || domainDuplicates === 0;
     elements.filterInput.disabled = count === 0;
-    elements.filterCount.textContent = `${filteredUrls.length.toLocaleString()} of ${count.toLocaleString()}`;
+    elements.filterCount.textContent = `${visibleUrls.length.toLocaleString()} of ${count.toLocaleString()}`;
     elements.managementPanel.hidden = count === 0;
     elements.emptyState.hidden = count > 0;
-    elements.noFilterResults.hidden = count === 0 || filteredUrls.length > 0;
-    elements.preview.hidden = count === 0 || filteredUrls.length === 0;
+    elements.noFilterResults.hidden = count === 0 || visibleUrls.length > 0;
+    elements.preview.hidden = count === 0 || visibleUrls.length === 0;
     elements.preview.replaceChildren();
 
-    for (const url of filteredUrls.slice(-MAX_RENDERED_URLS).reverse()) {
+    let previousHostname = null;
+    const groupByHostname = elements.orderSelect.value.startsWith("hostname-");
+    for (const url of visibleUrls.slice(0, MAX_RENDERED_URLS)) {
+      const hostname = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+      if (groupByHostname && hostname !== previousHostname) {
+        const group = document.createElement("li");
+        group.className = "hostname-group";
+        group.textContent = hostname;
+        elements.preview.appendChild(group);
+        previousHostname = hostname;
+      }
       const item = document.createElement("li");
       const label = document.createElement("span");
       const removeButton = document.createElement("button");
@@ -391,6 +429,13 @@
       item.append(label, removeButton);
       elements.preview.appendChild(item);
     }
+  }
+
+  function visibleCollectionUrls() {
+    return orderUrlsForView(
+      filterUrls(collection.urls, elements.filterInput.value),
+      elements.orderSelect.value,
+    );
   }
 
   async function updateBadge() {

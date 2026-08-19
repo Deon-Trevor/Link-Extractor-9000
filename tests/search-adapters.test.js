@@ -229,6 +229,221 @@ const cases = [
   },
 ];
 
+const threatIntelCases = [
+  {
+    id: "shodan",
+    search: "https://www.shodan.io/search?query=product%3Anginx",
+    result: "https://www.shodan.io/host/203.0.113.10?ref=search",
+    expected: "https://www.shodan.io/host/203.0.113.10",
+    noise: "https://www.shodan.io/dashboard",
+  },
+  {
+    id: "censys",
+    search: "https://platform.censys.io/search?q=host.services.port%3D443",
+    result: "https://platform.censys.io/hosts/203.0.113.11?source=search",
+    expected: "https://platform.censys.io/hosts/203.0.113.11",
+    noise: "https://platform.censys.io/account",
+  },
+  {
+    id: "zoomeye",
+    search: "https://www.zoomeye.ai/searchResult?q=nginx",
+    result: "https://www.zoomeye.ai/host/203.0.113.12?from=search",
+    expected: "https://www.zoomeye.ai/host/203.0.113.12",
+    noise: "https://www.zoomeye.ai/profile",
+  },
+  {
+    id: "fofa",
+    search: "https://fofa.info/result?qbase64=dGl0bGU9Im5naW54Ig%3D%3D",
+    result: "https://fofa.info/host/203.0.113.13?from=result",
+    expected: "https://fofa.info/host/203.0.113.13",
+    noise: "https://fofa.info/userCenter",
+  },
+  {
+    id: "netlas",
+    search: "https://app.netlas.io/responses/?q=http.headers.server%3Anginx",
+    result: "https://app.netlas.io/host/203.0.113.14?source=responses",
+    expected: "https://app.netlas.io/host/203.0.113.14",
+    noise: "https://app.netlas.io/profile/",
+  },
+  {
+    id: "leakix",
+    search: "https://leakix.net/search?q=nginx",
+    result: "https://leakix.net/host/203.0.113.15?ref=search",
+    expected: "https://leakix.net/host/203.0.113.15",
+    noise: "https://leakix.net/plugins",
+  },
+  {
+    id: "greynoise",
+    search: "https://viz.greynoise.io/query?gnql=classification%3Amalicious",
+    result: "https://viz.greynoise.io/ip/203.0.113.17?ref=query",
+    expected: "https://viz.greynoise.io/ip/203.0.113.17",
+    noise: "https://viz.greynoise.io/account",
+  },
+  {
+    id: "criminal-ip",
+    search: "https://www.criminalip.io/asset/search?query=nginx",
+    result: "https://www.criminalip.io/asset/report/203.0.113.18?from=search",
+    expected: "https://www.criminalip.io/asset/report/203.0.113.18",
+    noise: "https://www.criminalip.io/mypage",
+  },
+  {
+    id: "hunter-how",
+    search: "https://hunter.how/search/list?searchValue=nginx",
+    result: "https://hunter.how/host/203.0.113.19?source=search",
+    expected: "https://hunter.how/host/203.0.113.19",
+    noise: "https://hunter.how/user",
+  },
+  {
+    id: "onyphe",
+    search: "https://search.onyphe.io/search/?q=category%3Adatascan",
+    result: "https://search.onyphe.io/host/203.0.113.20?ref=search",
+    expected: "https://search.onyphe.io/host/203.0.113.20",
+    noise: "https://search.onyphe.io/account/",
+  },
+  {
+    id: "quake-360",
+    search: "https://quake.360.net/quake/#/searchResult?searchVal=nginx",
+    result: "https://quake.360.net/quake/#/host/203.0.113.21",
+    expected: "https://quake.360.net/quake/#/host/203.0.113.21",
+    noise: "https://quake.360.net/quake/#/user",
+  },
+  {
+    id: "publicwww",
+    search: "https://publicwww.com/websites/%22jquery.js%22/",
+    result: "https://result.example/path?asset=jquery.js#example",
+    expected: "https://result.example/path?asset=jquery.js#example",
+    noise: "https://publicwww.com/pricing/",
+  },
+  {
+    id: "fullhunt",
+    search: "https://fullhunt.io/search?query=example.com",
+    result: "https://fullhunt.io/domain/result.example?ref=search",
+    expected: "https://fullhunt.io/domain/result.example",
+    noise: "https://fullhunt.io/pricing",
+  },
+  {
+    id: "securitytrails",
+    search: "https://securitytrails.com/list/subdomains/example.com",
+    result: "https://securitytrails.com/domain/result.example/dns?ref=list",
+    expected: "https://securitytrails.com/domain/result.example/dns",
+    noise: "https://securitytrails.com/app/account",
+  },
+  {
+    id: "urlscan",
+    search: "https://urlscan.io/search/?q=domain%3Aexample.com",
+    result: "https://urlscan.io/result/12345678-1234-4abc-8def-123456789abc/?ref=search",
+    expected: "https://urlscan.io/result/12345678-1234-4abc-8def-123456789abc/",
+    noise: "https://urlscan.io/docs/",
+  },
+  {
+    id: "virustotal",
+    search: "https://www.virustotal.com/gui/search/example.com",
+    result: "https://www.virustotal.com/gui/domain/example.com/details?utm_source=search",
+    expected: "https://www.virustotal.com/gui/domain/example.com/details",
+    noise: "https://www.virustotal.com/gui/home/upload",
+  },
+  {
+    id: "otx",
+    search: "https://otx.alienvault.com/browse/global/pulses?q=example.com",
+    result: "https://otx.alienvault.com/pulse/0123456789abcdef01234567?ref=browse",
+    expected: "https://otx.alienvault.com/pulse/0123456789abcdef01234567",
+    noise: "https://otx.alienvault.com/dashboard",
+  },
+  {
+    id: "pulsedive",
+    search: "https://pulsedive.com/search.php?q=example.com",
+    result: "https://pulsedive.com/indicator/?iid=12345&utm_source=search",
+    expected: "https://pulsedive.com/indicator/?iid=12345",
+    noise: "https://pulsedive.com/account/",
+  },
+  {
+    id: "threatminer",
+    search: "https://www.threatminer.org/getData.php?e=search_container&t=0&q=example.com",
+    result: "https://www.threatminer.org/domain.php?q=result.example&ref=search",
+    expected: "https://www.threatminer.org/domain.php?q=result.example",
+    noise: "https://www.threatminer.org/about.php",
+  },
+  {
+    id: "microsoft-dti",
+    search: "https://security.microsoft.com/threatanalytics3?search=example.com",
+    result: "https://security.microsoft.com/threatanalytics3/intel-explorer/example.com?ref=search",
+    expected: "https://security.microsoft.com/threatanalytics3/intel-explorer/example.com",
+    noise: "https://security.microsoft.com/settings",
+  },
+  {
+    id: "urlhaus",
+    search: "https://urlhaus.abuse.ch/browse/?search=example.com",
+    result: "https://urlhaus.abuse.ch/url/123456/?ref=browse",
+    expected: "https://urlhaus.abuse.ch/url/123456/",
+    noise: "https://urlhaus.abuse.ch/api/",
+  },
+  {
+    id: "threatfox",
+    search: "https://threatfox.abuse.ch/browse/?search=example.com",
+    result: "https://threatfox.abuse.ch/ioc/123456/?ref=browse",
+    expected: "https://threatfox.abuse.ch/ioc/123456/",
+    noise: "https://threatfox.abuse.ch/api/",
+  },
+  {
+    id: "feodo-tracker",
+    search: "https://feodotracker.abuse.ch/browse/?search=203.0.113.22",
+    result: "https://feodotracker.abuse.ch/browse/host/203.0.113.22/?ref=browse",
+    expected: "https://feodotracker.abuse.ch/browse/host/203.0.113.22/",
+    noise: "https://feodotracker.abuse.ch/blocklists/",
+  },
+  {
+    id: "sslbl",
+    search: "https://sslbl.abuse.ch/ssl-certificates/?search=example.com",
+    result: "https://sslbl.abuse.ch/ssl-certificates/sha1/0123456789abcdef/?ref=search",
+    expected: "https://sslbl.abuse.ch/ssl-certificates/sha1/0123456789abcdef/",
+    noise: "https://sslbl.abuse.ch/blacklist/",
+  },
+  {
+    id: "hybrid-analysis",
+    search: "https://www.hybrid-analysis.com/search?query=example.com",
+    result: `https://www.hybrid-analysis.com/sample/${"a".repeat(64)}?ref=search`,
+    expected: `https://www.hybrid-analysis.com/sample/${"a".repeat(64)}`,
+    noise: "https://www.hybrid-analysis.com/account",
+  },
+  {
+    id: "anyrun",
+    search: "https://app.any.run/tasks?query=example.com",
+    result: "https://app.any.run/tasks/12345678-1234-4abc-8def-123456789abc?ref=search",
+    expected: "https://app.any.run/tasks/12345678-1234-4abc-8def-123456789abc",
+    noise: "https://app.any.run/profile",
+  },
+  {
+    id: "triage",
+    search: "https://tria.ge/reports?q=example.com",
+    result: "https://tria.ge/reports/240101-abcd1234ef?ref=search",
+    expected: "https://tria.ge/reports/240101-abcd1234ef",
+    noise: "https://tria.ge/account",
+  },
+  {
+    id: "joe-sandbox",
+    search: "https://www.joesandbox.com/analysissearch?q=example.com",
+    result: "https://www.joesandbox.com/analysis/123456/0/html?ref=search",
+    expected: "https://www.joesandbox.com/analysis/123456/0/html",
+    noise: "https://www.joesandbox.com/account",
+  },
+  {
+    id: "phishtank",
+    search: "https://www.phishtank.org/phish_search.php?phish_id=123456",
+    result: "https://www.phishtank.org/phish_detail.php?phish_id=654321&ref=search",
+    expected: "https://www.phishtank.org/phish_detail.php?phish_id=654321",
+    noise: "https://www.phishtank.org/login.php",
+  },
+  {
+    id: "phishstats",
+    search: "https://phishstats.info/search/?q=brand",
+    result: "https://suspicious.example/login?campaign=brand#verify",
+    expected: "https://suspicious.example/login?campaign=brand#verify",
+    noise: "https://phishstats.info/about/",
+  },
+];
+
+const adapterCases = [...cases, ...threatIntelCases];
+
 function anchor(
   href,
   { inResultScope = true, inNavigation = false, rejected = false } = {},
@@ -311,12 +526,56 @@ test("platform adapter ids are unique and have valid serializable rules", () => 
 
     for (const rule of [...adapter.searchRules, ...adapter.resultRules]) {
       assert.doesNotThrow(() => new RegExp(rule.pathPattern));
+      if (rule.hashPattern) {
+        assert.doesNotThrow(() => new RegExp(rule.hashPattern));
+      }
     }
   }
 });
 
+test("includes every active High-fit threat-intelligence adapter", () => {
+  const expectedIds = [
+    "anyrun",
+    "censys",
+    "criminal-ip",
+    "feodo-tracker",
+    "fofa",
+    "fullhunt",
+    "greynoise",
+    "hunter-how",
+    "hybrid-analysis",
+    "joe-sandbox",
+    "leakix",
+    "microsoft-dti",
+    "netlas",
+    "onyphe",
+    "otx",
+    "phishstats",
+    "phishtank",
+    "publicwww",
+    "pulsedive",
+    "quake-360",
+    "securitytrails",
+    "shodan",
+    "sslbl",
+    "threatfox",
+    "threatminer",
+    "triage",
+    "urlhaus",
+    "urlscan",
+    "virustotal",
+    "zoomeye",
+  ];
+  const actualIds = adapters
+    .filter((adapter) => adapter.family.startsWith("threat-intel-"))
+    .map((adapter) => adapter.id)
+    .sort();
+
+  assert.deepEqual(actualIds, expectedIds);
+});
+
 test("detects every declared host-based platform search route", async (context) => {
-  for (const scenario of cases) {
+  for (const scenario of adapterCases) {
     await context.test(scenario.id, () => {
       assert.deepEqual(detectNativeSearchEngine(scenario.search), {
         id: scenario.id,
@@ -341,7 +600,7 @@ test("does not classify ordinary platform homepages as search results", () => {
 test("serialized extraction keeps platform results and rejects navigation", async (context) => {
   const injectedExtractor = Function(`return (${extractLinksFromPage.toString()})`)();
 
-  for (const scenario of cases) {
+  for (const scenario of adapterCases) {
     await context.test(scenario.id, () => {
       const adapter = JSON.parse(JSON.stringify(getSearchAdapter(scenario.id)));
       const page = fakeDocument([
