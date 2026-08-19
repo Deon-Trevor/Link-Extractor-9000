@@ -129,7 +129,7 @@ client-side rendering, regional routing, or account-tier differences. These
 adapters recognize pages the user opens; they do not query platform APIs or
 bypass access controls.
 
-Logged-out Firefox 153 captures for Shodan, LeakIX, urlscan.io, SSLBL, and
+Logged-out Firefox 153 captures for Shodan, LeakIX, urlscan.io, SSLBL,
 PhishTank, Netlas, and FullHunt are retained as sanitized DOM projections in
 `tests/fixtures/firefox-live-threat-intel.json`. They contain anchor metadata and
 expected canonical URLs only, not page text, cookies, complete HTML, or browser
