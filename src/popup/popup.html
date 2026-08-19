@@ -25,25 +25,26 @@
           </section>
 
           <section id="search-scope" class="scope" hidden>
-            <h2 class="label label-scope">
-              Search results detected
-              <span id="search-engine-label" class="scope-engine">Choose scope</span>
-            </h2>
+            <p class="scope-intro">
+              This looks like a <span id="search-engine-label">search results</span> page.
+            </p>
+            <h2 class="scope-question">Which links do you want?</h2>
 
             <fieldset class="scope-options">
               <legend class="sr-only">URLs to collect</legend>
               <label class="scope-option">
                 <input type="radio" name="scope" value="results" checked />
                 <span>
-                  <strong>Result URLs only</strong>
-                  <small>Skip search controls, navigation and internal links.</small>
+                  <strong>Just the results</strong>
+                  <small>The pages the search found. Leaves out ads, filters and the
+                    engine's own links.</small>
                 </span>
               </label>
               <label class="scope-option">
                 <input type="radio" name="scope" value="all" />
                 <span>
-                  <strong>Every URL on page</strong>
-                  <small>Every HTTP or HTTPS link currently loaded.</small>
+                  <strong>Everything on the page</strong>
+                  <small>Every link loaded here, the search engine's own included.</small>
                 </span>
               </label>
             </fieldset>
@@ -88,7 +89,6 @@
             </div>
           </section>
 
-          <p class="fine-print">Exact duplicates are ignored across every run.</p>
         </aside>
 
         <section class="pane pane-collection" aria-labelledby="collection-heading">
@@ -131,9 +131,18 @@
             </div>
           </div>
 
-          <p id="empty-state" class="empty-state">
-            Nothing saved yet. Collect a page and your URLs will wait here between visits.
-          </p>
+          <div id="empty-state" class="empty-state">
+            <img class="empty-mark" src="../../assets/logo-mark.svg" alt="" width="40" height="40" />
+            <h3>No URLs saved yet</h3>
+            <p>
+              Collect this page and every link on it lands here. Go to the next page,
+              collect again, and the list keeps growing until you clear it.
+            </p>
+            <ul class="empty-hints">
+              <li>Collecting the same page twice is safe. Duplicates are ignored.</li>
+              <li>The list survives closing the popup and changing pages.</li>
+            </ul>
+          </div>
 
           <ol id="url-preview" class="url-list" aria-label="Saved URLs"></ol>
 

@@ -180,18 +180,23 @@ h1 em {
   background: var(--amber-tint);
 }
 
-.label-scope {
-  color: var(--amber);
+.scope-intro {
+  margin: 0 0 2px;
+  color: var(--ink-soft);
+  font-size: 12px;
 }
 
-.scope-engine {
-  display: block;
-  margin-top: 3px;
-  color: var(--ink);
-  font-size: 12.5px;
+/* Amber marks the engine name only. Colouring the whole sentence left the
+   trailing word stranded on its own line when the name wrapped. */
+.scope-intro span {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.scope-question {
+  margin: 0 0 8px;
+  font-size: 13.5px;
   font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
 }
 
 .scope-options {
@@ -302,13 +307,6 @@ h1 em {
 .exports .ghost-button {
   flex: 1;
   padding: 0 6px;
-}
-
-.fine-print {
-  margin: 0;
-  color: var(--ink-faint);
-  font-size: 11px;
-  line-height: 1.4;
 }
 
 /* --- collection ----------------------------------------------------------- */
@@ -508,15 +506,56 @@ h2 {
   min-height: 0;
   flex: 1;
   margin: 0;
-  padding: 20px;
-  border: 1px dashed var(--line-strong);
+  padding: 24px;
+  gap: 9px;
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--sunken);
+  justify-items: center;
+  place-content: center;
+  text-align: center;
+}
+
+.empty-mark {
+  width: 40px;
+  height: 40px;
+  opacity: 0.55;
+}
+
+.empty-state h3 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.empty-state p {
+  max-width: 330px;
+  margin: 0;
   color: var(--ink-soft);
   font-size: 12.5px;
   line-height: 1.5;
-  place-content: center;
-  text-align: center;
+}
+
+.empty-hints {
+  display: grid;
+  margin: 3px 0 0;
+  padding: 0;
+  gap: 5px;
+  list-style: none;
+  text-align: left;
+}
+
+.empty-hints li {
+  color: var(--ink-faint);
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.empty-hints li::before {
+  margin-right: 6px;
+  color: var(--brand-deep);
+  content: "✓";
+  font-weight: 700;
 }
 
 /* --- actions -------------------------------------------------------------- */

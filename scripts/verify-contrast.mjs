@@ -90,7 +90,8 @@ const PAIRS = [
   ["primary button label on brand lime", "brand-ink", "brand", BODY_MIN],
   ["brand green text on the surface", "brand-deep", "surface", BODY_MIN],
   ["brand green text on its own tint", "brand-deep", "brand-tint", BODY_MIN],
-  ["amber heading on the scope panel", "amber", "amber-tint", BODY_MIN],
+  ["amber engine name on the scope panel", "amber", "amber-tint", BODY_MIN],
+  ["scope panel sentence on its tint", "ink-soft", "amber-tint", BODY_MIN],
   ["danger label on the surface", "danger", "surface", BODY_MIN],
   ["saved count, 30px so large-text rules apply", "brand-deep", "surface", LARGE_MIN],
 ];
