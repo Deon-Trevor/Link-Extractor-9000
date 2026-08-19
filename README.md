@@ -92,6 +92,10 @@ result URL shapes. Search-provider selectors remain isolated in the extractor
 because providers can change their markup independently of the collection and
 popup code.
 
+Sanitized Firefox DOM projections under `tests/fixtures/` provide deterministic
+regression coverage for representative live search pages without retaining page
+text, cookies, or browser-profile data.
+
 ## Logo and brand assets
 
 | File | Use |

@@ -1,5 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const firefoxLiveSearch = require("./fixtures/firefox-live-search.json");
 
 const extractLinksFromPage = require("../src/content/extract-links.js");
 const {
@@ -262,6 +263,27 @@ function fakeDocument(links) {
   };
 }
 
+function capturedAnchor(record) {
+  return {
+    href: record.href,
+    getAttribute(name) {
+      return name === "href" ? record.href : null;
+    },
+    closest(selector) {
+      if (
+        record.landmark &&
+        selector === 'nav, header, footer, aside, [role="navigation"]'
+      ) {
+        return record.landmark;
+      }
+      if (record.scope === selector || record.reject === selector) {
+        return record.anchor;
+      }
+      return null;
+    },
+  };
+}
+
 function withPage(url, documentValue, callback) {
   const previousDocument = global.document;
   const previousLocation = global.location;
@@ -408,4 +430,34 @@ test("adapter-specific rejected link roles are excluded", () => {
   );
 
   assert.deepEqual(result.urls, ["https://soundcloud.com/researcher/security-track"]);
+});
+
+test("sanitized Firefox live DOM projections preserve result filtering", async (context) => {
+  assert.equal(firefoxLiveSearch.schemaVersion, 1);
+  assert.match(firefoxLiveSearch.browser, /^Firefox /);
+
+  const injectedExtractor = Function(`return (${extractLinksFromPage.toString()})`)();
+
+  for (const fixture of firefoxLiveSearch.cases) {
+    await context.test(fixture.platform, () => {
+      const adapter = JSON.parse(
+        JSON.stringify(getSearchAdapter(fixture.platform)),
+      );
+      const page = fakeDocument(fixture.anchors.map(capturedAnchor));
+      const result = withPage(fixture.pageUrl, page, () =>
+        injectedExtractor({
+          scope: "results",
+          engine: fixture.platform,
+          adapter,
+        }),
+      );
+
+      assert.deepEqual(
+        result.urls,
+        fixture.anchors.flatMap((anchorRecord) =>
+          anchorRecord.expected ? [anchorRecord.expected] : [],
+        ),
+      );
+    });
+  }
 });

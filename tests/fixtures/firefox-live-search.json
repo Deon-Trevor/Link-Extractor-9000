@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-19T01:13:38+02:00",
+  "browser": "Firefox 153.0.4",
+  "query": "cybersecurity",
+  "cases": [
+    {
+      "platform": "youtube",
+      "pageUrl": "https://www.youtube.com/results?search_query=cybersecurity",
+      "observed": { "anchors": 383, "extracted": 136 },
+      "anchors": [
+        {
+          "href": "https://www.youtube.com/watch?v=inWWhr5tnEA&pp=ygUNY3liZXJzZWN1cml0eQ%3D%3D",
+          "anchor": {
+            "tag": "a",
+            "id": "video-title",
+            "classes": ["yt-simple-endpoint", "style-scope", "ytd-video-renderer"]
+          },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://www.youtube.com/watch?v=inWWhr5tnEA"
+        },
+        {
+          "href": "https://www.youtube.com/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ",
+          "anchor": {
+            "tag": "a",
+            "id": "endpoint",
+            "classes": ["yt-simple-endpoint", "style-scope", "ytd-guide-entry-renderer"]
+          },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "tp-yt-app-drawer", "role": "navigation", "id": "guide" },
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "reddit",
+      "pageUrl": "https://www.reddit.com/search/?q=cybersecurity",
+      "observed": { "anchors": 78, "extracted": 18 },
+      "anchors": [
+        {
+          "href": "https://www.reddit.com/r/cybersecurity/comments/1vmhzd4/do_you_guys_actually_enjoy_working_in/",
+          "anchor": { "tag": "a", "id": null, "classes": ["absolute", "inset-0"] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://www.reddit.com/r/cybersecurity/comments/1vmhzd4/do_you_guys_actually_enjoy_working_in/"
+        },
+        {
+          "href": "https://www.reddit.com/r/cybersecurity/",
+          "anchor": {
+            "tag": "a",
+            "id": null,
+            "classes": ["flex", "items-center", "text-neutral-content-weak", "font-semibold"]
+          },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://www.reddit.com/r/cybersecurity/"
+        },
+        {
+          "href": "https://www.reddit.com/",
+          "anchor": { "tag": "a", "id": "reddit-logo", "classes": ["no-underline"] },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "nav", "role": null, "id": null },
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "twitch",
+      "pageUrl": "https://www.twitch.tv/search?term=cybersecurity",
+      "observed": { "anchors": 64, "extracted": 21 },
+      "anchors": [
+        {
+          "href": "https://www.twitch.tv/darksidediaries",
+          "anchor": { "tag": "a", "id": null, "classes": ["tw-link"] },
+          "scope": ".search-result-card",
+          "reject": null,
+          "landmark": null,
+          "expected": "https://www.twitch.tv/darksidediaries"
+        },
+        {
+          "href": "https://www.twitch.tv/jynxzi",
+          "anchor": { "tag": "a", "id": null, "classes": ["side-nav-card__link", "tw-link"] },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "nav", "role": null, "id": "side-nav" },
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "soundcloud",
+      "pageUrl": "https://soundcloud.com/search?q=cybersecurity",
+      "observed": { "anchors": 76, "extracted": 23 },
+      "anchors": [
+        {
+          "href": "https://soundcloud.com/jace-younis/sets/cybersecurity",
+          "anchor": { "tag": "a", "id": null, "classes": ["sound__coverArt"] },
+          "scope": ".searchList__item",
+          "reject": null,
+          "landmark": null,
+          "expected": "https://soundcloud.com/jace-younis/sets/cybersecurity"
+        },
+        {
+          "href": "https://soundcloud.com/jace-younis",
+          "anchor": {
+            "tag": "a",
+            "id": null,
+            "classes": ["soundTitle__username", "sc-link-secondary", "sc-link-light"]
+          },
+          "scope": ".searchList__item",
+          "reject": null,
+          "landmark": null,
+          "expected": "https://soundcloud.com/jace-younis"
+        },
+        {
+          "href": "https://soundcloud.com/feed",
+          "anchor": { "tag": "a", "id": null, "classes": ["header__navMenuItem"] },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "nav", "role": "navigation", "id": null },
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "mastodon",
+      "pageUrl": "https://mastodon.social/search?q=cybersecurity",
+      "observed": { "anchors": 28, "extracted": 5 },
+      "anchors": [
+        {
+          "href": "https://mastodon.social/@cybersecurity@sh.itjust.works",
+          "anchor": { "tag": "a", "id": null, "classes": ["account__display-name", "focusable"] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://mastodon.social/@cybersecurity@sh.itjust.works"
+        },
+        {
+          "href": "https://mastodon.social/about",
+          "anchor": { "tag": "a", "id": null, "classes": [] },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "footer", "role": null, "id": null },
+          "expected": null
+        }
+      ]
+    },
+    {
+      "platform": "prime-video",
+      "pageUrl": "https://www.primevideo.com/search?phrase=cybersecurity",
+      "observed": { "anchors": 84, "extracted": 40 },
+      "anchors": [
+        {
+          "href": "https://www.primevideo.com/detail/0RQXIPBBDZBRB7VJT84AA821UZ?ref_=atv_sr_fle_c_sr782405_pvsearchresults_1_1",
+          "anchor": { "tag": "a", "id": null, "classes": ["zyfcZQ"] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://www.primevideo.com/detail/0RQXIPBBDZBRB7VJT84AA821UZ"
+        },
+        {
+          "href": "https://www.primevideo.com/detail/0SP3V0CTDNQ4FG9IERHIIUQB0Z?ref_=atv_sr_fle_c_sr782405_pvsearchresults_1_2",
+          "anchor": { "tag": "a", "id": null, "classes": ["zyfcZQ"] },
+          "scope": null,
+          "reject": null,
+          "landmark": null,
+          "expected": "https://www.primevideo.com/detail/0SP3V0CTDNQ4FG9IERHIIUQB0Z"
+        },
+        {
+          "href": "https://www.primevideo.com/storefront?ref_=atv_sr_SearchInput_c_9zZ8D2_hom",
+          "anchor": { "tag": "a", "id": null, "classes": ["dSVFqO", "tQDFiP"] },
+          "scope": null,
+          "reject": null,
+          "landmark": { "tag": "nav", "role": null, "id": "pv-navigation-bar" },
+          "expected": null
+        }
+      ]
+    }
+  ]
+}
