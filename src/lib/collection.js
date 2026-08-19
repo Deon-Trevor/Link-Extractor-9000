@@ -140,6 +140,66 @@
     return { urls, added, duplicates, rejected };
   }
 
+  function filterUrls(urls, query) {
+    const normalizedQuery = String(query || "").trim().toLowerCase();
+
+    return (urls || []).filter((value) => {
+      if (!isHttpUrl(value)) {
+        return false;
+      }
+
+      if (!normalizedQuery) {
+        return true;
+      }
+
+      const url = new URL(value);
+      return (
+        value.toLowerCase().includes(normalizedQuery) ||
+        url.hostname.toLowerCase().includes(normalizedQuery)
+      );
+    });
+  }
+
+  function removeUrl(urls, targetUrl) {
+    const retained = [];
+    let removed = 0;
+
+    for (const url of urls || []) {
+      if (url === targetUrl) {
+        removed += 1;
+      } else if (isHttpUrl(url)) {
+        retained.push(url);
+      }
+    }
+
+    return { urls: retained, removed };
+  }
+
+  function dedupeUrlsByHostname(urls) {
+    const retained = [];
+    const seen = new Set();
+    let removed = 0;
+    let rejected = 0;
+
+    for (const value of urls || []) {
+      if (!isHttpUrl(value)) {
+        rejected += 1;
+        continue;
+      }
+
+      const hostname = new URL(value).hostname.toLowerCase().replace(/^www\./, "");
+      if (seen.has(hostname)) {
+        removed += 1;
+        continue;
+      }
+
+      seen.add(hostname);
+      retained.push(value);
+    }
+
+    return { urls: retained, removed, rejected };
+  }
+
   function isHttpUrl(value) {
     if (typeof value !== "string") {
       return false;
@@ -157,14 +217,65 @@
     return (urls || []).join("\n");
   }
 
+  function createExportFile(urls, format, exportedAt = new Date()) {
+    const normalizedFormat = String(format || "").toLowerCase();
+    const validUrls = (urls || []).filter(isHttpUrl);
+    const timestamp = normalizeExportTimestamp(exportedAt);
+    const filename = `link-extractor-9000-${timestamp}.${normalizedFormat}`;
+
+    if (normalizedFormat === "txt") {
+      return {
+        filename,
+        mimeType: "text/plain;charset=utf-8",
+        contents: validUrls.length ? `${validUrls.join("\n")}\n` : "",
+      };
+    }
+
+    if (normalizedFormat === "csv") {
+      const rows = validUrls.map((url) => `"${url.replaceAll('"', '""')}"`);
+      return {
+        filename,
+        mimeType: "text/csv;charset=utf-8",
+        contents: ["url", ...rows].join("\r\n") + "\r\n",
+      };
+    }
+
+    if (normalizedFormat === "json") {
+      return {
+        filename,
+        mimeType: "application/json;charset=utf-8",
+        contents: `${JSON.stringify(validUrls, null, 2)}\n`,
+      };
+    }
+
+    throw new TypeError(`Unsupported export format: ${format}`);
+  }
+
+  function normalizeExportTimestamp(value) {
+    const date = value instanceof Date ? value : new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      throw new TypeError("Export timestamp must be a valid date");
+    }
+
+    return date
+      .toISOString()
+      .replace(/\.\d{3}Z$/, "Z")
+      .replaceAll(":", "-");
+  }
+
   return {
     STORAGE_KEY,
+    createExportFile,
+    dedupeUrlsByHostname,
     detectSearchEngine,
+    filterUrls,
     getSearchAdapter,
     isHttpUrl,
     isPotentialSearchResultsPage,
     mergeUrls,
     normalizeCollection,
+    removeUrl,
     toClipboardText,
   };
 });

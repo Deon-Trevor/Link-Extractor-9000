@@ -2,10 +2,14 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const {
+  createExportFile,
+  dedupeUrlsByHostname,
   detectSearchEngine,
+  filterUrls,
   isPotentialSearchResultsPage,
   mergeUrls,
   normalizeCollection,
+  removeUrl,
   toClipboardText,
 } = require("../src/lib/collection.js");
 
@@ -88,9 +92,87 @@ test("normalizes missing and legacy collection values", () => {
   });
 });
 
+test("filters saved URLs by full URL or hostname without changing capture order", () => {
+  const urls = [
+    "https://one.example/reports/Alpha",
+    "https://two.example/profile",
+    "https://news.test/reports/beta",
+    "not-a-url",
+  ];
+
+  assert.deepEqual(filterUrls(urls, "TWO.EXAMPLE"), ["https://two.example/profile"]);
+  assert.deepEqual(filterUrls(urls, "reports"), [
+    "https://one.example/reports/Alpha",
+    "https://news.test/reports/beta",
+  ]);
+  assert.deepEqual(filterUrls(urls, "  "), urls.slice(0, 3));
+});
+
+test("removes an exact saved URL while preserving the remaining order", () => {
+  assert.deepEqual(
+    removeUrl(
+      ["https://one.example/", "https://two.example/", "https://one.example/"],
+      "https://one.example/",
+    ),
+    { urls: ["https://two.example/"], removed: 2 },
+  );
+});
+
+test("deduplicates by normalized hostname and keeps the first captured URL", () => {
+  const result = dedupeUrlsByHostname([
+    "https://www.example.com/first",
+    "https://example.com/second",
+    "https://blog.example.com/post",
+    "https://two.example/path",
+    "https://two.example/other",
+    "mailto:test@example.com",
+  ]);
+
+  assert.deepEqual(result.urls, [
+    "https://www.example.com/first",
+    "https://blog.example.com/post",
+    "https://two.example/path",
+  ]);
+  assert.equal(result.removed, 2);
+  assert.equal(result.rejected, 1);
+});
+
 test("exports one URL per line", () => {
   assert.equal(
     toClipboardText(["https://one.example/", "https://two.example/"]),
     "https://one.example/\nhttps://two.example/",
+  );
+});
+
+test("builds timestamped TXT, CSV, and JSON downloads", () => {
+  const urls = [
+    "https://one.example/path",
+    'https://two.example/?q="quoted",value',
+  ];
+  const exportedAt = new Date("2026-08-19T01:23:45.678Z");
+
+  assert.deepEqual(createExportFile(urls, "txt", exportedAt), {
+    filename: "link-extractor-9000-2026-08-19T01-23-45Z.txt",
+    mimeType: "text/plain;charset=utf-8",
+    contents: `${urls.join("\n")}\n`,
+  });
+  assert.deepEqual(createExportFile(urls, "csv", exportedAt), {
+    filename: "link-extractor-9000-2026-08-19T01-23-45Z.csv",
+    mimeType: "text/csv;charset=utf-8",
+    contents:
+      'url\r\n"https://one.example/path"\r\n"https://two.example/?q=""quoted"",value"\r\n',
+  });
+  assert.deepEqual(createExportFile(urls, "json", exportedAt), {
+    filename: "link-extractor-9000-2026-08-19T01-23-45Z.json",
+    mimeType: "application/json;charset=utf-8",
+    contents: `${JSON.stringify(urls, null, 2)}\n`,
+  });
+});
+
+test("export files reject unknown formats and invalid timestamps", () => {
+  assert.throws(() => createExportFile([], "xml"), /Unsupported export format/);
+  assert.throws(
+    () => createExportFile([], "txt", "not-a-date"),
+    /valid date/,
   );
 });

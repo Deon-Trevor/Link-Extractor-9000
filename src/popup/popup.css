@@ -295,7 +295,10 @@ h2 {
 }
 
 .collect-button:disabled,
-.secondary-button:disabled {
+.secondary-button:disabled,
+.export-button:disabled,
+.dedupe-button:disabled,
+.remove-url-button:disabled {
   cursor: not-allowed;
   opacity: 0.38;
 }
@@ -355,12 +358,93 @@ h2 {
   font-size: 7px;
 }
 
+.management-panel {
+  margin-top: 8px;
+  padding: 7px;
+  border: 1px solid rgb(199 255 74 / 16%);
+  background: rgb(5 7 5 / 28%);
+}
+
+.management-heading,
+.management-controls {
+  display: flex;
+  align-items: center;
+}
+
+.management-heading {
+  justify-content: space-between;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-family: ui-monospace, "Cascadia Code", "Liberation Mono", monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.management-heading span {
+  color: var(--signal);
+  font-variant-numeric: tabular-nums;
+}
+
+.management-controls {
+  gap: 6px;
+}
+
+.management-controls input {
+  width: 100%;
+  min-width: 0;
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--canvas-deep);
+  color: var(--ink);
+  font-family: ui-monospace, "Cascadia Code", "Liberation Mono", monospace;
+  font-size: 9px;
+}
+
+.management-controls input::placeholder {
+  color: #70796b;
+}
+
+.management-controls input:focus {
+  border-color: var(--amber);
+}
+
+.dedupe-button {
+  min-width: 112px;
+  min-height: 31px;
+  padding: 0 7px;
+  border: 1px solid var(--line-bright);
+  border-radius: 2px;
+  background: var(--surface-raised);
+  color: #cbd2c3;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dedupe-button:hover:not(:disabled) {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.dedupe-button[data-armed="true"] {
+  border-color: var(--danger);
+  background: rgb(255 118 95 / 9%);
+  color: var(--danger);
+}
+
 .url-preview {
-  max-height: 76px;
+  max-height: 142px;
   margin: 7px 0 8px;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   list-style: none;
+  scrollbar-color: var(--line-bright) transparent;
+  scrollbar-width: thin;
 }
 
 .url-preview li {
@@ -382,10 +466,34 @@ h2 {
 }
 
 .url-preview span {
+  flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.remove-url-button {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: #aeb6a7;
+  font-family: ui-monospace, "Cascadia Code", "Liberation Mono", monospace;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.remove-url-button:hover {
+  border-color: var(--danger);
+  background: rgb(255 118 95 / 9%);
+  color: var(--danger);
 }
 
 .empty-state {
@@ -396,6 +504,72 @@ h2 {
   font-size: 10px;
   line-height: 1.45;
   text-align: center;
+}
+
+.no-filter-results {
+  margin: 7px 0 8px;
+  padding: 9px;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.export-bank {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  margin: 8px 0;
+  padding: 6px;
+  gap: 8px;
+  border: 1px solid rgb(199 255 74 / 16%);
+  background:
+    linear-gradient(90deg, rgb(199 255 74 / 7%), transparent 56%),
+    rgb(5 7 5 / 28%);
+}
+
+.export-label {
+  padding-left: 3px;
+  color: var(--muted);
+  font-family: ui-monospace, "Cascadia Code", "Liberation Mono", monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.export-formats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.export-button {
+  min-width: 0;
+  min-height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--canvas);
+  color: #cbd2c3;
+  font-family: ui-monospace, "Cascadia Code", "Liberation Mono", monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
+}
+
+.export-button span {
+  color: var(--signal);
+}
+
+.export-button:hover:not(:disabled) {
+  border-color: var(--signal);
+  background: var(--signal-dark);
+  color: var(--ink);
 }
 
 .collection-actions {

@@ -17,7 +17,10 @@ Link Extractor 9000 is a Firefox-first browser extension for collecting URLs acr
 - On detected search pages, choose between result URLs only and every page URL.
 - Append new URLs to persistent local extension storage.
 - Ignore exact duplicates while preserving capture order.
+- Filter the saved collection by URL or hostname and remove individual entries.
+- Optionally keep only the first captured URL for each hostname.
 - Copy the complete collection as one URL per line.
+- Download the complete collection as TXT, CSV, or JSON.
 - Clear the collection with a two-step confirmation.
 - Show the saved count on the extension toolbar badge.
 
@@ -63,9 +66,13 @@ Video, Disney+, Max, Hulu, and Tubi. See
 [`docs/platform-support.md`](docs/platform-support.md) for support levels and
 known limitations.
 
-### Copy or clear the collection
+### Copy, export, or clear the collection
 
+- Type in **Filter collection** to narrow the visible list by URL or hostname. Filtering does not change copied or exported data.
+- Select the × beside a URL to remove that entry from the saved collection.
+- Select **Dedupe domains**, then confirm, to keep the first captured URL for each hostname. `www.` and the bare hostname are treated as the same; other subdomains remain separate.
 - Select **Copy all** to place the complete collection on the clipboard, with one URL per line. Copying does not clear it.
+- Select **TXT**, **CSV**, or **JSON** under **Export file** to download the complete collection in that format. Exporting does not clear it.
 - Select **Clear**, then **Confirm clear**, to permanently empty the collection.
 - The number on the extension's toolbar badge is the current saved URL count.
 

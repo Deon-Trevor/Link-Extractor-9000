@@ -70,8 +70,69 @@
           </div>
         </div>
 
-        <ol id="url-preview" class="url-preview" aria-label="Most recently collected URLs"></ol>
         <p id="empty-state" class="empty-state">Your collected URLs will wait here between pages.</p>
+
+        <div id="management-panel" class="management-panel" hidden>
+          <div class="management-heading">
+            <label for="collection-filter">Filter collection</label>
+            <span id="filter-count" aria-live="polite">0 of 0</span>
+          </div>
+          <div class="management-controls">
+            <input
+              id="collection-filter"
+              type="search"
+              placeholder="URL or hostname"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button
+              id="dedupe-domains-button"
+              class="dedupe-button"
+              type="button"
+              title="Keep the first saved URL for each hostname"
+            >
+              Dedupe domains
+            </button>
+          </div>
+        </div>
+
+        <ol id="url-preview" class="url-preview" aria-label="Saved URLs"></ol>
+        <p id="no-filter-results" class="no-filter-results" hidden>
+          No saved URLs match this filter.
+        </p>
+
+        <div class="export-bank">
+          <span id="export-label" class="export-label">Export file</span>
+          <div class="export-formats" role="group" aria-labelledby="export-label">
+            <button
+              class="export-button"
+              type="button"
+              data-export-format="txt"
+              aria-label="Download saved URLs as a TXT file"
+              disabled
+            >
+              <span aria-hidden="true">↓</span> TXT
+            </button>
+            <button
+              class="export-button"
+              type="button"
+              data-export-format="csv"
+              aria-label="Download saved URLs as a CSV file"
+              disabled
+            >
+              <span aria-hidden="true">↓</span> CSV
+            </button>
+            <button
+              class="export-button"
+              type="button"
+              data-export-format="json"
+              aria-label="Download saved URLs as a JSON file"
+              disabled
+            >
+              <span aria-hidden="true">↓</span> JSON
+            </button>
+          </div>
+        </div>
 
         <div class="collection-actions">
           <button id="copy-button" class="secondary-button copy-button" type="button" disabled>

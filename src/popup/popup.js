@@ -4,13 +4,19 @@
   const extensionApi = globalThis.browser || globalThis.chrome;
   const {
     STORAGE_KEY,
+    createExportFile,
+    dedupeUrlsByHostname,
     detectSearchEngine,
+    filterUrls,
     getSearchAdapter,
     isPotentialSearchResultsPage,
     mergeUrls,
     normalizeCollection,
+    removeUrl,
     toClipboardText,
   } = globalThis.LinkExtractor9000;
+
+  const MAX_RENDERED_URLS = 100;
 
   const elements = {
     clearButton: document.getElementById("clear-button"),
@@ -18,7 +24,13 @@
     collectLabel: document.getElementById("collect-label"),
     copyButton: document.getElementById("copy-button"),
     count: document.getElementById("url-count"),
+    dedupeButton: document.getElementById("dedupe-domains-button"),
     emptyState: document.getElementById("empty-state"),
+    exportButtons: Array.from(document.querySelectorAll("[data-export-format]")),
+    filterCount: document.getElementById("filter-count"),
+    filterInput: document.getElementById("collection-filter"),
+    managementPanel: document.getElementById("management-panel"),
+    noFilterResults: document.getElementById("no-filter-results"),
     pageHost: document.getElementById("page-host"),
     pageKind: document.getElementById("page-kind"),
     preview: document.getElementById("url-preview"),
@@ -32,10 +44,26 @@
   let searchEngine = null;
   let clearArmed = false;
   let clearTimer = null;
+  let dedupeArmed = false;
+  let dedupeTimer = null;
 
   elements.collectButton.addEventListener("click", collectCurrentPage);
   elements.copyButton.addEventListener("click", copyCollection);
   elements.clearButton.addEventListener("click", clearCollection);
+  elements.dedupeButton.addEventListener("click", dedupeCollectionByHostname);
+  elements.filterInput.addEventListener("input", () => {
+    const confirmationWasArmed = clearArmed || dedupeArmed;
+    resetClearButton();
+    resetDedupeButton();
+    renderCollection();
+    if (confirmationWasArmed) {
+      setStatus("Confirmation cancelled.");
+    }
+  });
+  elements.preview.addEventListener("click", removeCollectedUrl);
+  elements.exportButtons.forEach((button) => {
+    button.addEventListener("click", downloadCollection);
+  });
   document.querySelectorAll('input[name="scope"]').forEach((input) => {
     input.addEventListener("change", updateCollectLabel);
   });
@@ -163,6 +191,8 @@
         updatedAt: new Date().toISOString(),
       };
       await extensionApi.storage.local.set({ [STORAGE_KEY]: collection });
+      resetClearButton();
+      resetDedupeButton();
       renderCollection();
       await updateBadge();
 
@@ -192,12 +222,41 @@
     }
   }
 
+  function downloadCollection(event) {
+    if (!collection.urls.length) {
+      return;
+    }
+
+    try {
+      const format = event.currentTarget.dataset.exportFormat;
+      const exportFile = createExportFile(collection.urls, format);
+      const blobUrl = URL.createObjectURL(
+        new Blob([exportFile.contents], { type: exportFile.mimeType }),
+      );
+      const downloadLink = document.createElement("a");
+      downloadLink.href = blobUrl;
+      downloadLink.download = exportFile.filename;
+      downloadLink.hidden = true;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 0);
+      setStatus(
+        `${collection.urls.length} URLs exported as ${format.toUpperCase()}.`,
+        "success",
+      );
+    } catch (error) {
+      setStatus(`Export failed: ${cleanError(error)}`, "error");
+    }
+  }
+
   async function clearCollection() {
     if (!collection.urls.length) {
       return;
     }
 
     if (!clearArmed) {
+      resetDedupeButton();
       clearArmed = true;
       elements.clearButton.dataset.armed = "true";
       elements.clearButton.textContent = "Confirm clear";
@@ -209,6 +268,8 @@
     collection = normalizeCollection(null);
     await extensionApi.storage.local.set({ [STORAGE_KEY]: collection });
     resetClearButton();
+    resetDedupeButton();
+    elements.filterInput.value = "";
     renderCollection();
     await updateBadge();
     setStatus("Collection cleared.", "success");
@@ -221,21 +282,113 @@
     elements.clearButton.textContent = "Clear";
   }
 
+  async function removeCollectedUrl(event) {
+    const button = event.target.closest("[data-remove-url]");
+    if (!button) {
+      return;
+    }
+
+    const result = removeUrl(collection.urls, button.dataset.removeUrl);
+    if (!result.removed) {
+      return;
+    }
+
+    try {
+      collection = {
+        version: 1,
+        urls: result.urls,
+        updatedAt: new Date().toISOString(),
+      };
+      await extensionApi.storage.local.set({ [STORAGE_KEY]: collection });
+      resetClearButton();
+      resetDedupeButton();
+      if (!collection.urls.length) {
+        elements.filterInput.value = "";
+      }
+      renderCollection();
+      await updateBadge();
+      setStatus("URL removed from the saved collection.", "success");
+    } catch (error) {
+      setStatus(`Could not remove URL: ${cleanError(error)}`, "error");
+    }
+  }
+
+  async function dedupeCollectionByHostname() {
+    const result = dedupeUrlsByHostname(collection.urls);
+    if (!result.removed) {
+      setStatus("Already one saved URL per hostname.");
+      return;
+    }
+
+    if (!dedupeArmed) {
+      resetClearButton();
+      dedupeArmed = true;
+      elements.dedupeButton.dataset.armed = "true";
+      elements.dedupeButton.textContent = `Confirm −${result.removed}`;
+      setStatus("Press confirm to keep the first saved URL for each hostname.");
+      dedupeTimer = setTimeout(resetDedupeButton, 3500);
+      return;
+    }
+
+    try {
+      collection = {
+        version: 1,
+        urls: result.urls,
+        updatedAt: new Date().toISOString(),
+      };
+      await extensionApi.storage.local.set({ [STORAGE_KEY]: collection });
+      resetClearButton();
+      resetDedupeButton();
+      renderCollection();
+      await updateBadge();
+      setStatus(
+        `${result.removed} same-host URL${result.removed === 1 ? "" : "s"} removed.`,
+        "success",
+      );
+    } catch (error) {
+      setStatus(`Could not dedupe collection: ${cleanError(error)}`, "error");
+    }
+  }
+
+  function resetDedupeButton() {
+    clearTimeout(dedupeTimer);
+    dedupeArmed = false;
+    elements.dedupeButton.dataset.armed = "false";
+    elements.dedupeButton.textContent = "Dedupe domains";
+  }
+
   function renderCollection() {
     const count = collection.urls.length;
+    const filteredUrls = filterUrls(collection.urls, elements.filterInput.value);
+    const domainDuplicates = dedupeUrlsByHostname(collection.urls).removed;
     elements.count.textContent = count.toLocaleString();
     elements.copyButton.disabled = count === 0;
     elements.clearButton.disabled = count === 0;
+    elements.exportButtons.forEach((button) => {
+      button.disabled = count === 0;
+    });
+    elements.dedupeButton.disabled = count === 0 || domainDuplicates === 0;
+    elements.filterInput.disabled = count === 0;
+    elements.filterCount.textContent = `${filteredUrls.length.toLocaleString()} of ${count.toLocaleString()}`;
+    elements.managementPanel.hidden = count === 0;
     elements.emptyState.hidden = count > 0;
-    elements.preview.hidden = count === 0;
+    elements.noFilterResults.hidden = count === 0 || filteredUrls.length > 0;
+    elements.preview.hidden = count === 0 || filteredUrls.length === 0;
     elements.preview.replaceChildren();
 
-    for (const url of collection.urls.slice(-4).reverse()) {
+    for (const url of filteredUrls.slice(-MAX_RENDERED_URLS).reverse()) {
       const item = document.createElement("li");
       const label = document.createElement("span");
+      const removeButton = document.createElement("button");
       label.textContent = url;
       label.title = url;
-      item.appendChild(label);
+      removeButton.className = "remove-url-button";
+      removeButton.type = "button";
+      removeButton.dataset.removeUrl = url;
+      removeButton.textContent = "×";
+      removeButton.title = `Remove ${url}`;
+      removeButton.setAttribute("aria-label", `Remove ${url}`);
+      item.append(label, removeButton);
       elements.preview.appendChild(item);
     }
   }
