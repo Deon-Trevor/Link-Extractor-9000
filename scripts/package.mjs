@@ -9,7 +9,14 @@
 // unpacked directory during development. Upload the archive to the store.
 //
 // Everything the two browsers share lives in the repo root. The only per-platform
-// file is the manifest, which is why firefox/ and chromium/ hold one file each.
+// file is the manifest, which is why firefox/ and chromium/ hold one each.
+//
+// Those manifests are named manifest.template.json on purpose. A file called
+// manifest.json in firefox/ makes that directory look loadable, and Firefox will
+// happily install it and then show an empty popup, because every path it
+// references lives in the repo root rather than beside it. Loading dist/firefox
+// is the only correct move, and a name Firefox will not accept is what enforces
+// it.
 //
 // The build fails rather than shipping something broken when a runtime file is
 // missing, a popup reference points outside the package, or the version numbers
@@ -23,8 +30,8 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const PLATFORMS = {
-  firefox: { manifest: "firefox/manifest.json", store: "addons.mozilla.org" },
-  chromium: { manifest: "chromium/manifest.json", store: "Chrome Web Store" },
+  firefox: { manifest: "firefox/manifest.template.json", store: "addons.mozilla.org" },
+  chromium: { manifest: "chromium/manifest.template.json", store: "Chrome Web Store" },
 };
 
 // Explicit list, not a glob. A glob would happily pick up whatever lands in
@@ -108,6 +115,24 @@ if (distinct.length === 1) {
 }
 
 const version = packageVersion;
+
+// --- no fake extension roots ----------------------------------------------
+
+// Guard the trap described at the top of this file: a manifest.json sitting in a
+// platform directory is loadable and broken.
+for (const [name, platform] of Object.entries(PLATFORMS)) {
+  const decoy = path.join(ROOT, path.dirname(platform.manifest), "manifest.json");
+  if (fs.existsSync(decoy)) {
+    bad(
+      `${path.relative(ROOT, decoy)} exists, which makes ${path.dirname(
+        platform.manifest,
+      )}/ look like a loadable extension. It is not: the files it references live in ` +
+        `the repo root. Keep the source manifest as ${platform.manifest} and load ` +
+        `dist/${name} instead.`,
+    );
+  }
+}
+if (!failures) ok("no directory pretends to be a loadable extension");
 
 // --- shared checks ---------------------------------------------------------
 

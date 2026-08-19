@@ -109,8 +109,8 @@ function doctor() {
   );
 
   try {
-    const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "chromium/manifest.json"), "utf8"));
-    record("chromium/manifest.json parses", true, `version ${manifest.version}`);
+    const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "chromium/manifest.template.json"), "utf8"));
+    record("chromium/manifest.template.json parses", true, `version ${manifest.version}`);
     record(
       "no Firefox-only keys in the Chrome manifest",
       !manifest.browser_specific_settings,
@@ -124,7 +124,7 @@ function doctor() {
         : "minimum_chrome_version is unset",
     );
   } catch (error) {
-    record("chromium/manifest.json parses", false, error.message);
+    record("chromium/manifest.template.json parses", false, error.message);
   }
 
   const built = fs.existsSync(path.join(UNPACKED, "manifest.json"));

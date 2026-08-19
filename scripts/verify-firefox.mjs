@@ -125,9 +125,9 @@ function doctor() {
   }
 
   try {
-    const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "firefox/manifest.json"), "utf8"));
+    const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "firefox/manifest.template.json"), "utf8"));
     record(
-      "firefox/manifest.json parses and declares the expected id",
+      "firefox/manifest.template.json parses and declares the expected id",
       manifest.browser_specific_settings?.gecko?.id === EXT_ID,
       manifest.browser_specific_settings?.gecko?.id || "no gecko id",
     );

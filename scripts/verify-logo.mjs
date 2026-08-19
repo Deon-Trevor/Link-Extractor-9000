@@ -189,8 +189,8 @@ function renderSvg(chrome, svgPath, size, outPath) {
 // --- checks -----------------------------------------------------------------
 
 const MANIFESTS = {
-  firefox: JSON.parse(fs.readFileSync(path.join(ROOT, "firefox/manifest.json"), "utf8")),
-  chromium: JSON.parse(fs.readFileSync(path.join(ROOT, "chromium/manifest.json"), "utf8")),
+  firefox: JSON.parse(fs.readFileSync(path.join(ROOT, "firefox/manifest.template.json"), "utf8")),
+  chromium: JSON.parse(fs.readFileSync(path.join(ROOT, "chromium/manifest.template.json"), "utf8")),
 };
 
 // Which SVG each rendered size is cut from. The small mark carries heavier

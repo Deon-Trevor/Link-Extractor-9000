@@ -47,8 +47,13 @@ losing your collection, are in
 ## Development
 
 Plain HTML, CSS, and JavaScript with no runtime dependencies. Everything both
-browsers share lives in the root. The only per-platform file is the manifest, in
-`firefox/` and `chromium/`.
+browsers share lives in the root. The only per-platform file is the manifest, kept
+as `firefox/manifest.template.json` and `chromium/manifest.template.json`.
+
+Load `dist/firefox` or `dist/chromium`, never `firefox/` or `chromium/`. Those
+hold a manifest and nothing else, so an extension loaded from one installs and
+then shows an empty popup. The template naming is what stops that happening by
+accident.
 
 ```bash
 npm test             # unit tests

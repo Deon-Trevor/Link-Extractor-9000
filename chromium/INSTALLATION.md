@@ -19,6 +19,9 @@ anything older refuses to load it.
    That creates `dist/chromium/`. If someone sent you a zip instead, unzip it and
    use the folder it produces. Chrome cannot load the zip itself.
 
+   Pick `dist/chromium`, not the `chromium/` directory this file sits in. That one
+   holds only the manifest template; the files it references live in the repo root.
+
 2. Open `chrome://extensions` and turn on **Developer mode**, the toggle in the
    top right. The buttons in step 3 do not appear until you do.
 
