@@ -15,9 +15,8 @@ growing until you clear it, and closing the popup does not lose it.
 - On a search results page, asks whether you want just the results or everything
   on the page. Knows Google, Bing, DuckDuckGo, Brave Search, Startpage,
   MetaSearch, and SearXNG, plus native search on 61 social, video, audio,
-  streaming, and threat-intelligence sites. See
-  [`docs/platform-support.md`](docs/platform-support.md) for the full list and
-  its limits.
+  streaming, and threat-intelligence sites. The routes and result shapes for
+  those are in `src/lib/search-adapters.js`.
 - Ignores duplicates and keeps the order things were captured in.
 - Filters by URL or hostname, reorders by time or hostname, removes single
   entries, and collapses down to one URL per hostname.
