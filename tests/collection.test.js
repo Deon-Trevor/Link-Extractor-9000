@@ -38,7 +38,7 @@ test("detects supported search result pages without matching unrelated pages", (
   );
   assert.deepEqual(detectSearchEngine("https://search.syncpundit.io/search?q=security"), {
     id: "syncpundit-search",
-    label: "SyncPundit Search",
+    label: "MetaSearch",
   });
   assert.deepEqual(detectSearchEngine("https://searx.syncpundit.io/search?q=security"), {
     id: "searxng",

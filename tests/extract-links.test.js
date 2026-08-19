@@ -152,7 +152,7 @@ test("Startpage result mode collects organic title links", () => {
   assert.deepEqual(result.urls, ["https://target.example/startpage-finding"]);
 });
 
-test("SyncPundit Search result mode collects its result anchors", () => {
+test("MetaSearch result mode collects its result anchors", () => {
   const selector = ".search-result > a.search-result-anchor[href]";
   const page = fakeDocument({
     [selector]: [

@@ -76,7 +76,7 @@
     }
 
     if (host === "search.syncpundit.io" && path === "/search" && url.searchParams.has("q")) {
-      return { id: "syncpundit-search", label: "SyncPundit Search" };
+      return { id: "syncpundit-search", label: "MetaSearch" };
     }
 
     if (
