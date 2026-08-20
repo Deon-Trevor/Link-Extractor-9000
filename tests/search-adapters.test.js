@@ -692,6 +692,7 @@ test("Telegram Web derives public t.me links from its internal result rows", () 
       selector === adapter.derivePublicLinks.anchorSelector ? rows : [],
   };
 
+
   const result = withPage("https://web.telegram.org/a/", page, () =>
     serializedExtractor({ scope: "results", engine: "telegram-web", adapter }),
   );
@@ -702,6 +703,59 @@ test("Telegram Web derives public t.me links from its internal result rows", () 
     "https://t.me/trust_announcements",
     "https://t.me/Wereu_bot",
   ]);
+});
+
+test("Telegram Web prefers search rows over the chat list behind them", () => {
+  const adapter = JSON.parse(JSON.stringify(getSearchAdapter("telegram-web")));
+  const row = (text) => ({
+    textContent: text,
+    getAttribute: () => null,
+    closest: () => ({}),
+  });
+
+  // The real shape: div.ListItem.chat-item-clickable.search-result rows inside
+  // div.search-island.search-section, with the chat list still mounted behind.
+  const searchRows = [
+    row("Trust Wallet - Announcements@trust_announcements, 758,093 subscribers"),
+    row("Trust wallet@wallet_trustt, 154 subscribers"),
+  ];
+  const chatRows = [...searchRows, row("Some chat@tiktokinfobot")];
+
+  const page = {
+    querySelector: () => null,
+    querySelectorAll: (selector) => {
+      if (selector === adapter.derivePublicLinks.preferredSelector) return searchRows;
+      if (selector === adapter.derivePublicLinks.anchorSelector) return chatRows;
+      return [];
+    },
+  };
+
+  const result = withPage("https://web.telegram.org/a/", page, () =>
+    serializedExtractor({ scope: "results", engine: "telegram-web", adapter }),
+  );
+
+  // tiktokinfobot is in the chat list, not the search, so it stays out.
+  assert.deepEqual(result.urls, [
+    "https://t.me/trust_announcements",
+    "https://t.me/wallet_trustt",
+  ]);
+});
+
+test("Telegram Web falls back to chat rows when no search is open", () => {
+  const adapter = JSON.parse(JSON.stringify(getSearchAdapter("telegram-web")));
+  const page = {
+    querySelector: () => null,
+    querySelectorAll: (selector) =>
+      selector === adapter.derivePublicLinks.anchorSelector
+        ? [{ textContent: "Some chat@tiktokinfobot", getAttribute: () => null, closest: () => ({}) }]
+        : [],
+  };
+
+  const result = withPage("https://web.telegram.org/a/", page, () =>
+    serializedExtractor({ scope: "results", engine: "telegram-web", adapter }),
+  );
+
+  assert.deepEqual(result.urls, ["https://t.me/tiktokinfobot"]);
 });
 
 test("link derivation only runs for adapters that declare it", () => {

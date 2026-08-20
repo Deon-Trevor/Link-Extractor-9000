@@ -336,7 +336,16 @@
     const derivation = scope === "results" ? adapter && adapter.derivePublicLinks : null;
     if (derivation) {
       const username = new RegExp(derivation.usernamePattern);
-      for (const row of document.querySelectorAll(derivation.anchorSelector)) {
+      // Rows that are unmistakably search results win. Falling back to every
+      // chat row only matters when no search is open.
+      const preferred = derivation.preferredSelector
+        ? document.querySelectorAll(derivation.preferredSelector)
+        : [];
+      const rows = preferred.length
+        ? preferred
+        : document.querySelectorAll(derivation.anchorSelector);
+
+      for (const row of rows) {
         const found = username.exec((row.textContent || "").trim());
         if (!found) {
           continue;
