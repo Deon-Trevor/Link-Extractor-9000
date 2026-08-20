@@ -255,7 +255,21 @@
       const host = url.hostname.toLowerCase().replace(/^www\./, "");
 
       if (engine === "google") {
-        return /^google\.[a-z.]+$/.test(host) || host.endsWith(".google.com");
+        // Only the search host itself and the Google infrastructure that shows up
+        // in SERP chrome. Excluding every *.google.com host meant a
+        // site:chromewebstore.google.com query matched ten results and collected
+        // none of them, because each one looked like an engine link.
+        const serpChrome = new Set([
+          "accounts.google.com",
+          "policies.google.com",
+          "support.google.com",
+          "myaccount.google.com",
+          "myactivity.google.com",
+          "adssettings.google.com",
+          "translate.google.com",
+          "ogs.google.com",
+        ]);
+        return /^google\.[a-z.]+$/.test(host) || serpChrome.has(host);
       }
       if (engine === "bing") {
         return host === "bing.com" || host.endsWith(".bing.com");

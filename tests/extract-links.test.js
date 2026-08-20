@@ -119,6 +119,34 @@ test("Bing result mode unwraps encoded result redirect URLs", () => {
   assert.deepEqual(result.urls, [target]);
 });
 
+test("Google result mode keeps results on google.com subdomains", () => {
+  const selector = "#search a[href]";
+  const page = fakeDocument({
+    [selector]: [
+      // A site:chromewebstore.google.com query returns results that all sit on a
+      // google.com subdomain. Treating those as engine links collected nothing.
+      anchor("https://chromewebstore.google.com/detail/trust-wallet/egjidjbp", { heading: true }),
+      anchor("https://play.google.com/store/apps/details?id=com.example", { heading: true }),
+      // Still not results: the search host and its account and policy chrome.
+      anchor("https://www.google.com/preferences", { heading: true }),
+      anchor("https://accounts.google.com/ServiceLogin", { heading: true }),
+      anchor("https://policies.google.com/privacy", { heading: true }),
+      anchor("https://support.google.com/websearch", { heading: true }),
+    ],
+  });
+
+  const result = withPage(
+    "https://www.google.com/search?q=site%3Achromewebstore.google.com+trustwallet",
+    page,
+    () => extractLinksFromPage({ scope: "results", engine: "google" }),
+  );
+
+  assert.deepEqual(result.urls, [
+    "https://chromewebstore.google.com/detail/trust-wallet/egjidjbp",
+    "https://play.google.com/store/apps/details?id=com.example",
+  ]);
+});
+
 test("Brave result mode keeps snippet result links and rejects internal links", () => {
   // The stub matches selector strings exactly, so this has to mirror the string
   // in src/content/extract-links.js. Real markup drift is caught by
