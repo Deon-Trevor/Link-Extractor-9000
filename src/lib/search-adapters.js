@@ -422,6 +422,21 @@
       resultRules: [
         { pathPattern: "^/[^/]+/posts/[^/]+/?$", keepParams: [] },
         { pathPattern: "^/groups/[^/]+/posts/[^/]+/?$", keepParams: [] },
+        // A Groups tab search returns the groups themselves, not posts inside
+        // them, so /groups/<id> has to match on its own. The exclusions are the
+        // navigation that also lives under /groups/.
+        {
+          pathPattern:
+            "^/groups/(?!feed/?$|discover/?$|create/?$|joins/?$|your_groups/?$|browse/?$|categories/?$|invites/?$|search/?$)[^/]+/?$",
+          keepParams: [],
+        },
+        // Same shape for the Events and Marketplace tabs.
+        {
+          pathPattern:
+            "^/events/(?!calendar/?$|discover/?$|create/?$|birthdays/?$|going/?$|invites/?$|search/?$)[^/]+/?$",
+          keepParams: [],
+        },
+        { pathPattern: "^/marketplace/item/[^/]+/?$", keepParams: [] },
         { pathPattern: "^/(?:reel|videos)/[^/]+/?$", keepParams: [] },
         { pathPattern: "^/watch/?$", requiredParams: ["v"], keepParams: ["v"] },
         { pathPattern: "^/permalink\\.php$", requiredParams: ["story_fbid"], keepParams: ["story_fbid", "id"] },

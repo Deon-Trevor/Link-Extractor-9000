@@ -55,6 +55,29 @@ const cases = [
     noise: "https://www.facebook.com/settings",
   },
   {
+    // A Groups tab search returns the groups themselves. Only posts inside a
+    // group used to match, so the whole tab came back empty.
+    id: "facebook",
+    search: "https://www.facebook.com/search/groups/?q=trustwallet",
+    result: "https://www.facebook.com/groups/123456789012345/?ref=search",
+    expected: "https://www.facebook.com/groups/123456789012345/",
+    noise: "https://www.facebook.com/groups/feed/",
+  },
+  {
+    id: "facebook",
+    search: "https://www.facebook.com/search/events/?q=security",
+    result: "https://www.facebook.com/events/987654321/?acontext=x",
+    expected: "https://www.facebook.com/events/987654321/",
+    noise: "https://www.facebook.com/events/calendar/",
+  },
+  {
+    id: "facebook",
+    search: "https://www.facebook.com/search/marketplace/?q=laptop",
+    result: "https://www.facebook.com/marketplace/item/555000111/?ref=search",
+    expected: "https://www.facebook.com/marketplace/item/555000111/",
+    noise: "https://www.facebook.com/marketplace/",
+  },
+  {
     id: "linkedin",
     search: "https://www.linkedin.com/search/results/content/?keywords=security",
     result: "https://www.linkedin.com/posts/researcher_finding-activity-123?trackingId=x",
