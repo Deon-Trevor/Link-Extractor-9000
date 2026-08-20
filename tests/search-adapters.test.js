@@ -741,6 +741,28 @@ test("Telegram Web prefers search rows over the chat list behind them", () => {
   ]);
 });
 
+test("Telegram Web ignores a hollow search island and still collects", () => {
+  const adapter = JSON.parse(JSON.stringify(getSearchAdapter("telegram-web")));
+  const row = (text) => ({ textContent: text, getAttribute: () => null, closest: () => ({}) });
+
+  // Telegram keeps inactive slides mounted. Matching an empty search island and
+  // stopping there is what turned a page showing six results into zero.
+  const page = {
+    querySelector: () => null,
+    querySelectorAll: (selector) => {
+      if (selector === adapter.derivePublicLinks.preferredSelector) return [row(""), row("  ")];
+      if (selector === adapter.derivePublicLinks.anchorSelector) return [row("Some chat@tiktokinfobot")];
+      return [];
+    },
+  };
+
+  const result = withPage("https://web.telegram.org/a/", page, () =>
+    serializedExtractor({ scope: "results", engine: "telegram-web", adapter }),
+  );
+
+  assert.deepEqual(result.urls, ["https://t.me/tiktokinfobot"]);
+});
+
 test("Telegram Web falls back to chat rows when no search is open", () => {
   const adapter = JSON.parse(JSON.stringify(getSearchAdapter("telegram-web")));
   const page = {

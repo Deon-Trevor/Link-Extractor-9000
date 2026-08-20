@@ -336,25 +336,34 @@
     const derivation = scope === "results" ? adapter && adapter.derivePublicLinks : null;
     if (derivation) {
       const username = new RegExp(derivation.usernamePattern);
-      // Rows that are unmistakably search results win. Falling back to every
-      // chat row only matters when no search is open.
-      const preferred = derivation.preferredSelector
-        ? document.querySelectorAll(derivation.preferredSelector)
-        : [];
-      const rows = preferred.length
-        ? preferred
-        : document.querySelectorAll(derivation.anchorSelector);
 
-      for (const row of rows) {
-        const found = username.exec((row.textContent || "").trim());
-        if (!found) {
-          continue;
+      const deriveFrom = (selector) => {
+        const derived = [];
+        if (!selector) {
+          return derived;
         }
 
-        const derived = derivation.template.replace("{username}", found[1]);
-        if (!seen.has(derived)) {
-          seen.add(derived);
-          urls.push(derived);
+        for (const row of document.querySelectorAll(selector)) {
+          const found = username.exec((row.textContent || "").trim());
+          if (found) {
+            derived.push(derivation.template.replace("{username}", found[1]));
+          }
+        }
+
+        return derived;
+      };
+
+      // Prefer search rows by what they yield, not by whether they match. The
+      // app keeps inactive slides mounted, so the preferred selector can match a
+      // hollow search island and find nothing. Preferring on match alone turned
+      // a page showing six results into zero collected, with no fallback.
+      const derived = deriveFrom(derivation.preferredSelector);
+      const rows = derived.length ? derived : deriveFrom(derivation.anchorSelector);
+
+      for (const url of rows) {
+        if (!seen.has(url)) {
+          seen.add(url);
+          urls.push(url);
         }
       }
     }
