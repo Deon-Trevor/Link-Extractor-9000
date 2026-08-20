@@ -340,48 +340,6 @@
       }
     }
 
-    // Some apps render every result as an internal link. Telegram Web's rows are
-    // anchors pointing at "#<chatId>", which means nothing outside the signed-in
-    // session, while the public identity sits in the row text as an @username.
-    // Where an adapter declares derivePublicLinks, build the public URL from that
-    // text instead. Driven entirely by adapter config so it cannot fire on a
-    // platform that did not ask for it, and scoped to the row rather than the
-    // document, because an unscoped text scan also matches CSS @layer rules.
-    const derivation = scope === "results" ? adapter && adapter.derivePublicLinks : null;
-    if (derivation) {
-      const username = new RegExp(derivation.usernamePattern);
-
-      const deriveFrom = (selector) => {
-        const derived = [];
-        if (!selector) {
-          return derived;
-        }
-
-        for (const row of document.querySelectorAll(selector)) {
-          const found = username.exec((row.textContent || "").trim());
-          if (found) {
-            derived.push(derivation.template.replace("{username}", found[1]));
-          }
-        }
-
-        return derived;
-      };
-
-      // Prefer search rows by what they yield, not by whether they match. The
-      // app keeps inactive slides mounted, so the preferred selector can match a
-      // hollow search island and find nothing. Preferring on match alone turned
-      // a page showing six results into zero collected, with no fallback.
-      const derived = deriveFrom(derivation.preferredSelector);
-      const rows = derived.length ? derived : deriveFrom(derivation.anchorSelector);
-
-      for (const url of rows) {
-        if (!seen.has(url)) {
-          seen.add(url);
-          urls.push(url);
-        }
-      }
-    }
-
     return {
       engine,
       scope,

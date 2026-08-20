@@ -471,42 +471,6 @@
       ],
     },
     {
-      id: "telegram-web",
-      label: "Telegram Web",
-      family: "social",
-      support: "supported",
-      hosts: ["web.telegram.org"],
-      // Telegram Web never puts the query in the URL. Both clients live at a
-      // bare /a/ or /k/, so the path is the only URL signal there is.
-      searchRules: [{ pathPattern: "^/[ak]/?$" }],
-      // t.me links if the page ever renders them, which today it does not.
-      resultRules: [
-        {
-          hosts: ["t.me"],
-          external: true,
-          pathPattern: "^/[A-Za-z][A-Za-z0-9_]{3,31}/?$",
-          keepParams: [],
-        },
-      ],
-      // Result rows are anchors whose href is "#<chatId>", useless outside the
-      // session. The public handle is in the row text, and @name maps exactly to
-      // t.me/name, so the public link is derived rather than guessed.
-      derivePublicLinks: {
-        // Search rows are div.ListItem.chat-item-clickable.search-result inside
-        // div.search-island.search-section. When those exist, use only them, so
-        // "just the results" does not also sweep the chat list sitting behind
-        // the search panel.
-        preferredSelector: '.search-result, .search-section .ListItem',
-        // With no search open, fall back to any chat row. a[href^="#"] alone was
-        // too narrow: it collected two chat-list handles while six search
-        // results were on screen.
-        anchorSelector:
-          'a[href^="#"], .ListItem, .ListItem-button, [class*="chat-item"]',
-        usernamePattern: "@([A-Za-z][A-Za-z0-9_]{3,31})\\b",
-        template: "https://t.me/{username}",
-      },
-    },
-    {
       id: "bluesky",
       label: "Bluesky",
       family: "social",
