@@ -214,7 +214,13 @@ const browser = spawn(
     "--no-sandbox",
     "--no-first-run",
     "--no-default-browser-check",
-    "--window-size=1400,1000",
+    // Default headless is fingerprinted aggressively. DuckDuckGo served an empty
+    // shell and Startpage a block page until these were added, which made both
+    // look like walls when the pages were reachable all along.
+    "--disable-blink-features=AutomationControlled",
+    "--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+    "--lang=en-US",
+    "--window-size=1920,1080",
     `--remote-debugging-port=${port}`,
     `--user-data-dir=${profile}`,
     "about:blank",
