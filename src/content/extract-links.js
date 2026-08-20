@@ -326,6 +326,30 @@
       }
     }
 
+    // Some apps render every result as an internal link. Telegram Web's rows are
+    // anchors pointing at "#<chatId>", which means nothing outside the signed-in
+    // session, while the public identity sits in the row text as an @username.
+    // Where an adapter declares derivePublicLinks, build the public URL from that
+    // text instead. Driven entirely by adapter config so it cannot fire on a
+    // platform that did not ask for it, and scoped to the row rather than the
+    // document, because an unscoped text scan also matches CSS @layer rules.
+    const derivation = scope === "results" ? adapter && adapter.derivePublicLinks : null;
+    if (derivation) {
+      const username = new RegExp(derivation.usernamePattern);
+      for (const row of document.querySelectorAll(derivation.anchorSelector)) {
+        const found = username.exec((row.textContent || "").trim());
+        if (!found) {
+          continue;
+        }
+
+        const derived = derivation.template.replace("{username}", found[1]);
+        if (!seen.has(derived)) {
+          seen.add(derived);
+          urls.push(derived);
+        }
+      }
+    }
+
     return {
       engine,
       scope,

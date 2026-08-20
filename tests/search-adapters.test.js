@@ -669,6 +669,57 @@ test("every-URL mode remains unfiltered on platform search pages", () => {
   ]);
 });
 
+test("Telegram Web derives public t.me links from its internal result rows", () => {
+  const adapter = JSON.parse(JSON.stringify(getSearchAdapter("telegram-web")));
+
+  // The shape of a real row, from a console dump on a signed-in client:
+  // a.ListItem-button with href="#<chatId>" and the handle in its text.
+  const row = (text, href) => ({
+    textContent: text,
+    href,
+    getAttribute: (name) => (name === "href" ? href : null),
+    closest: () => ({}),
+  });
+  const rows = [
+    row("Trust Wallet - Announcements @trust_announcements, 758,093 subscribers", "#-1001678347404"),
+    row("Trust_wallet @Wereu_bot, bot", "#-100222"),
+    row("Saved Messages", "#-100333"),
+  ];
+
+  const page = {
+    querySelector: () => null,
+    querySelectorAll: (selector) => (selector === 'a[href^="#"]' ? rows : []),
+  };
+
+  const result = withPage("https://web.telegram.org/a/", page, () =>
+    serializedExtractor({ scope: "results", engine: "telegram-web", adapter }),
+  );
+
+  // The internal #<chatId> hrefs are not collectable, and the row without a
+  // handle contributes nothing.
+  assert.deepEqual(result.urls, [
+    "https://t.me/trust_announcements",
+    "https://t.me/Wereu_bot",
+  ]);
+});
+
+test("link derivation only runs for adapters that declare it", () => {
+  const adapter = JSON.parse(JSON.stringify(getSearchAdapter("bluesky")));
+  const page = {
+    querySelector: () => null,
+    querySelectorAll: (selector) =>
+      selector === 'a[href^="#"]'
+        ? [{ textContent: "@someone", href: "#x", getAttribute: () => "#x", closest: () => ({}) }]
+        : [],
+  };
+
+  const result = withPage("https://bsky.app/search?q=security", page, () =>
+    serializedExtractor({ scope: "results", engine: "bluesky", adapter }),
+  );
+
+  assert.deepEqual(result.urls, []);
+});
+
 test("result-only mode rejects content-shaped links inside navigation", () => {
   const page = fakeDocument([
     anchor("https://www.youtube.com/@sidebar-channel", { inNavigation: true }),
