@@ -36,7 +36,37 @@ const flag = (name, fallback = null) => {
 };
 const has = (name) => argv.includes(`--${name}`);
 
-const QUERY = flag("query", "open directory index");
+// One query cannot suit every platform. Asking an infrastructure scanner for
+// "open directory index" returns nothing, which looks exactly like a broken
+// adapter and produced two false alarms the first time this ran. Each family
+// gets a term that platform can actually answer, unless --query overrides.
+const QUERY_BY_FAMILY = [
+  [/threat-intel-infrastructure/, "apache"],
+  [/threat-intel-ioc/, "example.com"],
+  [/threat-intel-abuse|threat-intel-phish/, "example.com"],
+  [/threat-intel-sandbox|threat-intel-malware/, "emotet"],
+  [/streaming-audio|streaming-video|streaming-catalog/, "drake"],
+  [/social/, "news"],
+  [/search-engine/, "open directory index"],
+];
+// A few platforms search by domain or asset rather than by keyword, so a family
+// default of "apache" returns an honest zero and reads as a broken adapter.
+const QUERY_BY_ID = {
+  fullhunt: "tesla.com",
+  securitytrails: "tesla.com",
+  publicwww: "tesla.com",
+  threatminer: "tesla.com",
+  pulsedive: "tesla.com",
+  virustotal: "tesla.com",
+};
+const QUERY_OVERRIDE = flag("query");
+const queryFor = (family, id) => {
+  if (QUERY_OVERRIDE) return QUERY_OVERRIDE;
+  if (id && QUERY_BY_ID[id]) return QUERY_BY_ID[id];
+  const hit = QUERY_BY_FAMILY.find(([pattern]) => pattern.test(family));
+  return hit ? hit[1] : "example.com";
+};
+const QUERY = QUERY_OVERRIDE || "per-family";
 const ONLY_FAMILY = flag("family");
 const ENGINES_ONLY = has("engines");
 const LIST_ONLY = has("list");
@@ -98,20 +128,23 @@ if (!ONLY_FAMILY) {
       label: engine.label,
       family: "search-engine",
       support: "supported",
-      url: engine.url(encodeURIComponent(QUERY)),
+      url: engine.url(encodeURIComponent(queryFor("search-engine"))),
+      query: queryFor("search-engine"),
     });
   }
 }
 if (!ENGINES_ONLY) {
   for (const adapter of adapterLibrary.adapters) {
     if (ONLY_FAMILY && !adapter.family.includes(ONLY_FAMILY)) continue;
-    const url = adapterUrl(adapter, QUERY);
+    const query = queryFor(adapter.family, adapter.id);
+    const url = adapterUrl(adapter, query);
     targets.push({
       id: adapter.id,
       label: adapter.label,
       family: adapter.family,
       support: adapter.support,
       url,
+      query,
       unsynthesisable: !url,
     });
   }
@@ -281,39 +314,47 @@ try {
 
     try {
       await send("Page.navigate", { url: item.url }, session);
-      await wait(3500);
+      await wait(3000);
 
-      const outcome = await send(
-        "Runtime.evaluate",
-        {
-          expression: `(() => {
-            ${LIBS}
-            const engine = globalThis.LinkExtractor9000.detectSearchEngine(location.href);
-            const adapter = engine
-              ? globalThis.LinkExtractor9000.getSearchAdapter(engine.id)
-              : null;
-            const results = globalThis.extractLinksFromPage({
-              scope: "results", engine: engine && engine.id, adapter,
-            });
-            const all = globalThis.extractLinksFromPage({ scope: "all" });
-            return JSON.stringify({
-              href: location.href,
-              title: document.title,
-              detected: engine ? engine.id : null,
-              detectedLabel: engine ? engine.label : null,
-              resultCount: (results.urls || []).length,
-              allCount: (all.urls || []).length,
-              samples: (results.urls || []).slice(0, 3),
-              bodyText: (document.body ? document.body.innerText || "" : "").slice(0, 400),
-            });
-          })()`,
-          returnByValue: true,
-          awaitPromise: true,
-        },
-        session,
-      );
-
-      const data = JSON.parse(outcome.result.value);
+      // Several of these are client-rendered, so a fixed wait turns a slow render
+      // into a false zero. netlas gave 36 results on one run and 0 on the next
+      // with the same query. Poll instead, and keep the best answer.
+      let outcome = null;
+      let data = null;
+      for (let attempt = 1; attempt <= 4; attempt += 1) {
+        outcome = await send(
+          "Runtime.evaluate",
+          {
+            expression: `(() => {
+              ${LIBS}
+              const engine = globalThis.LinkExtractor9000.detectSearchEngine(location.href);
+              const adapter = engine
+                ? globalThis.LinkExtractor9000.getSearchAdapter(engine.id)
+                : null;
+              const results = globalThis.extractLinksFromPage({
+                scope: "results", engine: engine && engine.id, adapter,
+              });
+              const all = globalThis.extractLinksFromPage({ scope: "all" });
+              return JSON.stringify({
+                href: location.href,
+                title: document.title,
+                detected: engine ? engine.id : null,
+                detectedLabel: engine ? engine.label : null,
+                resultCount: (results.urls || []).length,
+                allCount: (all.urls || []).length,
+                samples: (results.urls || []).slice(0, 3),
+                bodyText: (document.body ? document.body.innerText || "" : "").slice(0, 400),
+              });
+            })()`,
+            returnByValue: true,
+            awaitPromise: true,
+          },
+            session,
+          );
+        data = JSON.parse(outcome.result.value);
+        if (data.resultCount > 0) break;
+        if (attempt < 4) await wait(2500);
+      }
 
       // "Just a moment..." is Cloudflare's interstitial and was landing in the
       // no-results bucket, which reads as a broken selector when it is a wall.
@@ -335,8 +376,19 @@ try {
           landedHost !== requestedHost ||
           data.href.startsWith("chrome-error"));
 
+      // Free tiers on the threat-intel platforms count anonymous searches, and
+      // repeated sweeps burn through them. fullhunt redirects to /pricing/ after
+      // 10, netlas prints a remaining-request countdown and stops rendering.
+      // Both look identical to a broken adapter unless it is named.
+      const rateLimited =
+        data.resultCount === 0 &&
+        /search limit|request limit|rate limit|quota exceeded|too many requests|upgrade to continue/i.test(
+          `${data.title} ${data.bodyText}`,
+        );
+
       let verdict;
       if (data.resultCount > 0) verdict = "working";
+      else if (rateLimited) verdict = "rate-limited";
       else if (data.href.startsWith("chrome-error")) verdict = "unreachable";
       else if (blocked) verdict = "blocked";
       else if (!data.detected) verdict = "not-detected";
