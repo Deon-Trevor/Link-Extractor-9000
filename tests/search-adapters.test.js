@@ -688,7 +688,8 @@ test("Telegram Web derives public t.me links from its internal result rows", () 
 
   const page = {
     querySelector: () => null,
-    querySelectorAll: (selector) => (selector === 'a[href^="#"]' ? rows : []),
+    querySelectorAll: (selector) =>
+      selector === adapter.derivePublicLinks.anchorSelector ? rows : [],
   };
 
   const result = withPage("https://web.telegram.org/a/", page, () =>
@@ -707,10 +708,9 @@ test("link derivation only runs for adapters that declare it", () => {
   const adapter = JSON.parse(JSON.stringify(getSearchAdapter("bluesky")));
   const page = {
     querySelector: () => null,
-    querySelectorAll: (selector) =>
-      selector === 'a[href^="#"]'
-        ? [{ textContent: "@someone", href: "#x", getAttribute: () => "#x", closest: () => ({}) }]
-        : [],
+    querySelectorAll: () => [
+      { textContent: "@someone", href: "#x", getAttribute: () => "#x", closest: () => ({}) },
+    ],
   };
 
   const result = withPage("https://bsky.app/search?q=security", page, () =>

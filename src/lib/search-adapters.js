@@ -492,7 +492,12 @@
       // session. The public handle is in the row text, and @name maps exactly to
       // t.me/name, so the public link is derived rather than guessed.
       derivePublicLinks: {
-        anchorSelector: 'a[href^="#"]',
+        // a[href^="#"] alone only caught chat-list rows: it collected two
+        // handles while six search results were on screen. Global search rows
+        // are ListItems too, so match the container as well as the anchor.
+        // Duplicates across the two are dropped by the caller.
+        anchorSelector:
+          'a[href^="#"], .ListItem, .ListItem-button, [class*="chat-item"], [class*="search-result"]',
         usernamePattern: "@([A-Za-z][A-Za-z0-9_]{3,31})\\b",
         template: "https://t.me/{username}",
       },
