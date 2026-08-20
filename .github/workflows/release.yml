@@ -1,0 +1,97 @@
+name: Release
+
+# Pushing a v* tag builds the extension for both browsers and publishes a draft
+# release with the archives attached. dist/ is gitignored, so the assets are built
+# here rather than uploaded from someone's laptop, which keeps them matching the
+# tag they claim to be.
+#
+# Workflow inputs are treated as untrusted: the tag is validated against a strict
+# pattern before anything checks it out, and every value reaches the shell through
+# env rather than expression interpolation.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to release, for example v1.1.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # Runs before checkout on purpose. A dispatch input must not reach ref:
+      # until its shape has been checked.
+      - name: Validate the requested tag
+        id: version
+        env:
+          REQUESTED: ${{ inputs.tag || github.ref_name }}
+        run: |
+          if ! printf '%s' "$REQUESTED" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "refusing to release \"$REQUESTED\": expected vMAJOR.MINOR.PATCH"
+            exit 1
+          fi
+          echo "tag=$REQUESTED" >> "$GITHUB_OUTPUT"
+          echo "number=${REQUESTED#v}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.version.outputs.tag }}
+          # npm run source uses git archive, which needs real history.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # A tag that disagrees with the manifests is how 1.1.0 ships calling itself
+      # 1.0.2. scripts/package.mjs already refuses to build on drift between
+      # package.json and the two manifests; this catches the tag as well.
+      - name: Check the tag matches the manifests
+        env:
+          NUMBER: ${{ steps.version.outputs.number }}
+        run: |
+          declared=$(node -p "require('./package.json').version")
+          if [ "$NUMBER" != "$declared" ]; then
+            echo "tag v$NUMBER does not match the declared version $declared"
+            exit 1
+          fi
+
+      - run: npm run check
+      - run: npm test
+
+      - name: Build both browsers and the source archive
+        run: |
+          npm run package
+          npm run source
+
+      # Fails when the section is missing or empty, so a release cannot go out
+      # with notes nobody wrote.
+      - name: Release notes from CHANGELOG.md
+        env:
+          NUMBER: ${{ steps.version.outputs.number }}
+        run: node scripts/changelog-section.mjs "$NUMBER" > release-notes.md
+
+      - name: Publish as a draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          NUMBER: ${{ steps.version.outputs.number }}
+        run: |
+          gh release create "$TAG" \
+            "dist/link-extractor-9000-firefox-$NUMBER.zip" \
+            "dist/link-extractor-9000-chromium-$NUMBER.zip" \
+            "dist/link-extractor-9000-source-$NUMBER.zip" \
+            --title "Link Extractor 9000 $NUMBER" \
+            --notes-file release-notes.md \
+            --verify-tag \
+            --draft
+          echo "Draft created. Review, then publish with:"
+          echo "  gh release edit $TAG --draft=false"
+          gh release view "$TAG" --json url --jq .url
