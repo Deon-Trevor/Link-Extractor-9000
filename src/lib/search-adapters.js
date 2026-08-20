@@ -663,11 +663,21 @@
       family: "streaming-audio",
       support: "supported",
       hosts: ["audiomack.com"],
-      searchRules: [{ pathPattern: "^/search/?$", requiredParams: ["query"] }],
+      // Audiomack searches with ?q=. Requiring only ?query= meant a real search
+      // page was never detected: /search?query=drake renders the empty search
+      // landing page, while /search?q=drake renders the results.
+      searchRules: [
+        { pathPattern: "^/search/?$", requiredParams: ["q"] },
+        { pathPattern: "^/search/?$", requiredParams: ["query"] },
+      ],
       resultRules: [
         { pathPattern: "^/[^/]+/(?:song|album|playlist)/[^/]+/?$", keepParams: [] },
         {
-          pathPattern: "^/(?!settings/?$|search/?$|feed/?$|trending/?$|upload/?$)[^/]+/?$",
+          // Artist profiles are single-segment paths, and so is most of the site
+          // navigation. Without these exclusions /plus, /charts, /playlists,
+          // /my-library and /world all came back as results.
+          pathPattern:
+            "^/(?!(?:settings|search|feed|trending|upload|plus|charts|playlists|my-library|world|about|contact-us|creator-app|browse|discover|originals|login|signup|premium)/?$)[^/]+/?$",
           keepParams: [],
         },
       ],
