@@ -3,13 +3,19 @@
 Release pages with downloadable builds live at
 [Releases](https://github.com/Deon-Trevor/Link-Extractor-9000/releases).
 
-## 1.1.0 (2026-08-20)
+## 1.0.3 (2026-08-21)
 
-### Added
-- Telegram Web support for `web.telegram.org`. Its rows link to internal session
-  identifiers rather than public addresses, so the public `t.me` link is derived
-  from the `@username` shown in each row. Search rows are used in preference to
-  the chat list that stays mounted behind the search panel.
+### Fixed
+- Google result-only mode collected nothing when the results sat on a
+  `google.com` subdomain, which is every result of a
+  `site:chromewebstore.google.com` query. Those were being discarded as the
+  search engine's own links.
+
+### Note
+- Telegram Web support was explored and withdrawn before release. Telegram
+  renders no public link for a result, so supporting it means deriving one from
+  the handle, and three attempts caught the wrong rows. It will return when it
+  can be built against a captured search row.
 
 ## 1.0.2 (2026-08-20)
 
