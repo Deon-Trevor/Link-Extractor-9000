@@ -37,7 +37,8 @@ npm run package
 
 **Firefox.** Open `about:debugging#/runtime/this-firefox`, choose Load Temporary
 Add-on, and pick `dist/firefox/manifest.json`. Firefox drops temporary add-ons
-when it restarts.
+when it restarts. Full steps, updating, and what to send AMO as source are in
+[`firefox/INSTALLATION.md`](firefox/INSTALLATION.md).
 
 **Chrome.** Open `chrome://extensions`, turn on Developer mode, choose Load
 unpacked, and pick `dist/chromium`. Full steps, including how to update without
@@ -59,6 +60,7 @@ accident.
 npm test             # unit tests
 npm run check        # syntax, manifests, icons, popup contrast and type scale
 npm run package      # build dist/firefox and dist/chromium, plus a zip each
+npm run source       # zip the tracked source for an AMO submission
 npm run verify:firefox # drive the Firefox build in a real headless Firefox
 npm run verify:chrome  # drive the Chrome build in a real headless Chrome
 ```
