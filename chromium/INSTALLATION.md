@@ -10,17 +10,28 @@ anything older refuses to load it.
 
 ## First install
 
-1. Build the extension, which writes the folder Chrome needs:
+1. Get the folder Chrome needs. Either download
+   `link-extractor-9000-chromium-<version>.zip` from
+   [Releases](https://github.com/Deon-Trevor/Link-Extractor-9000/releases) and
+   unzip it into a directory of its own, since the archive has no wrapping folder
+   and Chrome cannot load a zip:
+
+   ```bash
+   unzip -d link-extractor-9000 link-extractor-9000-chromium-1.0.3.zip
+   ```
+
+   Or build it from a clone, which writes `dist/chromium/`:
 
    ```bash
    npm run package
    ```
 
-   That creates `dist/chromium/`. If someone sent you a zip instead, unzip it and
-   use the folder it produces. Chrome cannot load the zip itself.
+   If you built it, pick `dist/chromium`, not the `chromium/` directory this file
+   sits in. That one holds only the manifest template; the files it references
+   live in the repo root.
 
-   Pick `dist/chromium`, not the `chromium/` directory this file sits in. That one
-   holds only the manifest template; the files it references live in the repo root.
+   The rest of this file says `dist/chromium`. Read that as the unzipped
+   directory if you downloaded a release.
 
 2. Open `chrome://extensions` and turn on **Developer mode**, the toggle in the
    top right. The buttons in step 3 do not appear until you do.
@@ -47,7 +58,8 @@ it, export your collection first with **TXT**, **CSV**, or **JSON**.
 
 ## Updating when a new version lands
 
-Rebuild into the same folder, then reload:
+Put the new version in the same folder, either by unzipping the new release over
+it or by rebuilding from a clone, then reload:
 
 ```bash
 git pull

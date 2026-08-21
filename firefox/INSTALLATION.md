@@ -8,13 +8,24 @@ Tested on Firefox 153.0.4.
 
 ## First install
 
-1. Build the extension, which assembles the folder Firefox needs:
+1. Get the folder Firefox needs. Either download
+   `link-extractor-9000-firefox-<version>.zip` from
+   [Releases](https://github.com/Deon-Trevor/Link-Extractor-9000/releases) and
+   unzip it into a directory of its own, since the archive has no wrapping
+   folder:
+
+   ```bash
+   unzip -d link-extractor-9000 link-extractor-9000-firefox-1.0.3.zip
+   ```
+
+   Or build it from a clone, which writes `dist/firefox/`:
 
    ```bash
    npm run package
    ```
 
-   That creates `dist/firefox/`.
+   The rest of this file says `dist/firefox/`. Read that as the unzipped
+   directory if you downloaded a release.
 
 2. Open `about:debugging#/runtime/this-firefox`.
 
@@ -37,7 +48,8 @@ badge should show the count.
 
 ## Updating when a new version lands
 
-Rebuild, then reload:
+Replace the contents of the same folder, either by unzipping the new release over
+it or by rebuilding from a clone:
 
 ```bash
 git pull

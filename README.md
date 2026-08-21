@@ -29,21 +29,30 @@ anywhere.
 
 ## Install
 
-Neither store listing is live yet, so build it and load the unpacked result:
+Neither store listing is live yet, so this is a manual load. Download a build
+from [Releases](https://github.com/Deon-Trevor/Link-Extractor-9000/releases) or
+build one yourself with `npm run package`.
+
+Each release carries a zip per browser plus a source archive, built on the tag by
+CI rather than uploaded from a laptop. The browser zips hold `manifest.json` at
+the top level with no wrapping folder, so unpack each one into a directory of its
+own and keep that directory around. Neither browser can load the zip itself.
 
 ```bash
-npm run package
+unzip -d link-extractor-9000 link-extractor-9000-firefox-1.0.3.zip
 ```
 
 **Firefox.** Open `about:debugging#/runtime/this-firefox`, choose Load Temporary
-Add-on, and pick `dist/firefox/manifest.json`. Firefox drops temporary add-ons
+Add-on, and pick the `manifest.json` inside that directory, or
+`dist/firefox/manifest.json` if you built it. Firefox drops temporary add-ons
 when it restarts. Full steps, updating, and what to send AMO as source are in
 [`firefox/INSTALLATION.md`](firefox/INSTALLATION.md).
 
 **Chrome.** Open `chrome://extensions`, turn on Developer mode, choose Load
-unpacked, and pick `dist/chromium`. Full steps, including how to update without
-losing your collection, are in
-[`chromium/INSTALLATION.md`](chromium/INSTALLATION.md).
+unpacked, and pick that directory, or `dist/chromium` if you built it. Chrome
+derives the extension's identity from the folder's path, so moving it later costs
+you the saved collection. Full steps, including how to update without losing your
+collection, are in [`chromium/INSTALLATION.md`](chromium/INSTALLATION.md).
 
 ## Development
 
@@ -64,5 +73,13 @@ npm run source       # zip the tracked source for an AMO submission
 npm run verify:firefox # drive the Firefox build in a real headless Firefox
 npm run verify:chrome  # drive the Chrome build in a real headless Chrome
 ```
+
+Releases come from tags. Bump the version in `package.json` and both manifest
+templates, add the section to [`CHANGELOG.md`](CHANGELOG.md), then push a
+`v*` tag. The workflow in
+[`.github/workflows/release.yml`](.github/workflows/release.yml) refuses a tag
+that disagrees with the manifests or has no changelog section, and otherwise
+builds the three archives and opens a draft release with the changelog section as
+its notes.
 
 GPL-3.0-only.
