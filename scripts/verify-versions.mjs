@@ -46,13 +46,18 @@ export const CHANGELOG = "CHANGELOG.md";
 // is the whole point: the last stale reference survived because nothing was
 // looking at the file it lived in. git ls-files is the same definition of
 // "tracked" that npm run source ships to AMO.
-// The three docs that have always carried the version. git decides the rest, but
-// these are never dropped, so the list can only grow. Asking git can come back
+// The docs that carry the version by design. git decides the rest, but these are
+// never dropped, so the list can only grow. Asking git can come back
 // empty for reasons that have nothing to do with the docs: npm run source ships
 // a git archive, so a reviewer's unzipped copy has no .git, and unpacking it
 // inside somebody else's repo answers about that repo instead. Either way an
 // empty answer must not read as nothing to check.
-const KNOWN_DOCS = ["README.md", "firefox/INSTALLATION.md", "chromium/INSTALLATION.md"];
+const KNOWN_DOCS = [
+  "README.md",
+  "DEVELOPMENT.md",
+  "firefox/INSTALLATION.md",
+  "chromium/INSTALLATION.md",
+];
 
 export function docs() {
   let tracked = [];

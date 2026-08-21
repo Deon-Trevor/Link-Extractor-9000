@@ -70,7 +70,13 @@ test("the docs scanned can only grow, never silently empty out", async () => {
 
   // git ls-files can answer about the wrong tree, or not answer at all, and an
   // empty list would read as a clean check that looked at nothing.
-  for (const doc of ["README.md", "firefox/INSTALLATION.md", "chromium/INSTALLATION.md"]) {
+  const carriers = [
+    "README.md",
+    "DEVELOPMENT.md",
+    "firefox/INSTALLATION.md",
+    "chromium/INSTALLATION.md",
+  ];
+  for (const doc of carriers) {
     assert.ok(scanned.includes(doc), `${doc} is not being scanned`);
   }
 

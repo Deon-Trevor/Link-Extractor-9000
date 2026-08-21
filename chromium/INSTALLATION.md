@@ -8,38 +8,32 @@ which use the same extensions page.
 Tested on Chrome 151. The manifest sets `minimum_chrome_version` to 105, so
 anything older refuses to load it.
 
+Everything here works from a downloaded release. Building from a clone is in
+[`DEVELOPMENT.md`](../DEVELOPMENT.md) instead.
+
 ## First install
 
-1. Get the folder Chrome needs. Either download
-   `link-extractor-9000-chromium-<version>.zip` from
-   [Releases](https://github.com/Deon-Trevor/Link-Extractor-9000/releases) and
-   unzip it into a directory of its own, since the archive has no wrapping folder
-   and Chrome cannot load a zip:
+1. Download `link-extractor-9000-chromium-<version>.zip` from
+   [Releases](https://github.com/Deon-Trevor/Link-Extractor-9000/releases).
+
+2. Unzip it into an empty directory of its own. The archive holds
+   `manifest.json` at the top level with no wrapping folder, so extracting it
+   where you stand scatters the files across whatever is already there:
 
    ```bash
    unzip -d link-extractor-9000 link-extractor-9000-chromium-1.0.3.zip
    ```
 
-   Or build it from a clone, which writes `dist/chromium/`:
+   The rest of this page calls that the extension folder. Chrome cannot load the
+   zip itself, only the folder you unpacked it into.
 
-   ```bash
-   npm run package
-   ```
+3. Open `chrome://extensions` and turn on **Developer mode**, the toggle in the
+   top right. The buttons in step 4 do not appear until you do.
 
-   If you built it, pick `dist/chromium`, not the `chromium/` directory this file
-   sits in. That one holds only the manifest template; the files it references
-   live in the repo root.
+4. Click **Load unpacked** and select the extension folder. Select the folder
+   itself, not the `manifest.json` inside it.
 
-   The rest of this file says `dist/chromium`. Read that as the unzipped
-   directory if you downloaded a release.
-
-2. Open `chrome://extensions` and turn on **Developer mode**, the toggle in the
-   top right. The buttons in step 3 do not appear until you do.
-
-3. Click **Load unpacked** and select the `dist/chromium` folder. Select the
-   folder itself, not `manifest.json` inside it, and not the repository root.
-
-4. Click the puzzle-piece icon in the toolbar, find Link Extractor 9000, and click
+5. Click the puzzle-piece icon in the toolbar, find Link Extractor 9000, and click
    the pin so the button stays visible. The saved count shows on the button as a
    green badge.
 
@@ -50,7 +44,8 @@ badge should show the count.
 ## Where the folder lives matters
 
 Chrome derives the extension's identity from the absolute path of the folder you
-selected. Keep that folder where it is.
+selected. Keep that folder where it is, which is also why it wants a directory of
+its own rather than your downloads folder.
 
 Move or rename it and Chrome treats it as a different extension, which means an
 empty collection and a second entry on the extensions page. If you need to move
@@ -58,12 +53,11 @@ it, export your collection first with **TXT**, **CSV**, or **JSON**.
 
 ## Updating when a new version lands
 
-Put the new version in the same folder, either by unzipping the new release over
-it or by rebuilding from a clone, then reload:
+Download the new zip and unpack it over the same extension folder, keeping the
+path identical:
 
 ```bash
-git pull
-npm run package
+unzip -o -d link-extractor-9000 link-extractor-9000-chromium-1.0.3.zip
 ```
 
 Then open `chrome://extensions` and click the reload icon, the circular arrow, on
@@ -84,8 +78,8 @@ anything loaded from a folder rather than the store. Dismissing it does not
 disable the extension.
 
 **The version on the card looks stale.** The card reads the version from the
-manifest in the folder. If it disagrees with what you just built, Chrome is still
-running the old copy, so click reload.
+manifest in the folder. If it disagrees with the zip you just unpacked, Chrome is
+still running the old copy, so click reload.
 
 **A stale icon.** Click reload first. If the old icon persists, remove the
 extension and load it again, but export your collection first, because removing
@@ -95,7 +89,7 @@ clears it.
 
 | What Chrome says | What it means |
 | --- | --- |
-| Manifest file is missing or unreadable | You selected the wrong folder. It must be the one holding `manifest.json`, which is `dist/chromium`, not the repository root. |
+| Manifest file is missing or unreadable | You selected the wrong folder. It must be the one holding `manifest.json`, which is the folder you unzipped the archive into. |
 | This extension requires a newer version of Chrome | Your Chrome is older than 105. Update Chrome. |
 | Nothing happens when you click Load unpacked | Developer mode is off. Turn on the toggle in the top right. |
 | The button is missing from the toolbar | It is in the puzzle-piece menu and not pinned yet. |

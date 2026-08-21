@@ -62,6 +62,7 @@ const FORBIDDEN = [
   /^node_modules\//,
   /^package\.json$/,
   /^README\.md$/,
+  /^DEVELOPMENT\.md$/,
   /^assets\/logo-lockup\./,
   /-small\.svg$/,
 ];
