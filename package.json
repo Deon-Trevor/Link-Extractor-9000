@@ -4,8 +4,9 @@
   "private": true,
   "description": "A Firefox-first browser extension for collecting URLs across pages.",
   "scripts": {
-    "check": "node --check src/lib/search-adapters.js && node --check src/lib/collection.js && node --check src/content/extract-links.js && node --check src/popup/popup.js && node -e \"for (const f of ['firefox/manifest.template.json','chromium/manifest.template.json']) JSON.parse(require('node:fs').readFileSync(f, 'utf8'))\" && node scripts/verify-logo.mjs && node scripts/verify-contrast.mjs && node scripts/verify-doc-versions.mjs",
+    "check": "node --check src/lib/search-adapters.js && node --check src/lib/collection.js && node --check src/content/extract-links.js && node --check src/popup/popup.js && node -e \"for (const f of ['firefox/manifest.template.json','chromium/manifest.template.json']) JSON.parse(require('node:fs').readFileSync(f, 'utf8'))\" && node scripts/verify-logo.mjs && node scripts/verify-contrast.mjs && node scripts/verify-versions.mjs",
     "package": "node scripts/package.mjs",
+    "bump": "node scripts/bump-version.mjs",
     "source": "mkdir -p dist && git archive --format=zip --prefix=link-extractor-9000-$npm_package_version/ HEAD -o dist/link-extractor-9000-source-$npm_package_version.zip",
     "verify:firefox": "node scripts/package.mjs firefox && node scripts/verify-firefox.mjs run",
     "verify:chrome": "node scripts/package.mjs chromium && node scripts/verify-chrome.mjs run",

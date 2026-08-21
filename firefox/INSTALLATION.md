@@ -115,7 +115,8 @@ which `unzip -l` reports as 52 entries because it counts directories too. It is
 a `git archive` of the last commit, so it holds exactly the tracked files:
 `src/`, `icons/`, `assets/`, `firefox/`, `chromium/`, `scripts/`, `tests/`,
 `.github/`, `CHANGELOG.md`, `package.json`, `README.md`, and `LICENSE`.
-`npm run check` fails when a version bump leaves this filename behind.
+`npm run bump` carries that filename forward with the version, and
+`npm run check` fails while it lags behind.
 
 Do not compress the working directory as it stands. That would hand a reviewer
 `.git/` with the entire history, `dist/` with build outputs, `.verify-evidence/`

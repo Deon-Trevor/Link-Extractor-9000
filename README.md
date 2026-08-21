@@ -72,14 +72,25 @@ npm run package      # build dist/firefox and dist/chromium, plus a zip each
 npm run source       # zip the tracked source for an AMO submission
 npm run verify:firefox # drive the Firefox build in a real headless Firefox
 npm run verify:chrome  # drive the Chrome build in a real headless Chrome
+npm run bump <version> # move the version everywhere it appears
 ```
 
-Releases come from tags. Bump the version in `package.json` and both manifest
-templates, add the section to [`CHANGELOG.md`](CHANGELOG.md), then push a
-`v*` tag. The workflow in
-[`.github/workflows/release.yml`](.github/workflows/release.yml) refuses a tag
-that disagrees with the manifests or has no changelog section, and otherwise
-builds the three archives and opens a draft release with the changelog section as
-its notes.
+Releases come from tags. Run `npm run bump <version>`, which rewrites
+`package.json`, both manifest templates, and every version reference in the docs,
+including the download commands in the install guides. Add `--dry-run` to list
+the edits without writing. Then write the section in
+[`CHANGELOG.md`](CHANGELOG.md), which the bump leaves alone on purpose, and push
+a `v*` tag.
+
+`npm run check` runs `scripts/verify-versions.mjs`, which fails while anything
+still says the old number, the changelog included. The version a doc mentions in
+passing is as much a reference as the one in a manifest, since the install guides
+name archives people actually download. Versions belonging to other tools, like
+the Firefox build a guide was tested against, are left alone.
+
+The workflow in [`.github/workflows/release.yml`](.github/workflows/release.yml)
+refuses a tag that disagrees with the manifests or has no changelog section, and
+otherwise builds the three archives and opens a draft release with the changelog
+section as its notes.
 
 GPL-3.0-only.
