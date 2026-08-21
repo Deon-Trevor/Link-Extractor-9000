@@ -110,10 +110,12 @@ If you want to include it anyway, or a reviewer asks:
 npm run source
 ```
 
-That writes `dist/link-extractor-9000-source-1.0.0.zip`, 184 kB and 46 files. It
-is a `git archive` of the last commit, so it holds exactly the tracked files:
+That writes `dist/link-extractor-9000-source-1.0.3.zip`, 198 kB and 38 files,
+which `unzip -l` reports as 52 entries because it counts directories too. It is
+a `git archive` of the last commit, so it holds exactly the tracked files:
 `src/`, `icons/`, `assets/`, `firefox/`, `chromium/`, `scripts/`, `tests/`,
-`package.json`, `README.md`, and `LICENSE`.
+`.github/`, `CHANGELOG.md`, `package.json`, `README.md`, and `LICENSE`.
+`npm run check` fails when a version bump leaves this filename behind.
 
 Do not compress the working directory as it stands. That would hand a reviewer
 `.git/` with the entire history, `dist/` with build outputs, `.verify-evidence/`

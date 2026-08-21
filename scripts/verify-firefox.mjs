@@ -81,6 +81,26 @@ function which(binary) {
   }
 }
 
+// Switching to chrome context needs privileged access to Firefox's parent
+// process, and who grants it moved. Up to geckodriver 0.35 the browser took
+// -remote-allow-system-access as a command line argument, passed through
+// moz:firefoxOptions. From 0.36 geckodriver owns the flag as its own
+// --allow-system-access and rejects the capability outright:
+//
+//   invalid argument: Argument --remote-allow-system-access can't be set via
+//   capabilities
+//
+// which is how a green run turned red on Firefox 154 with geckodriver 0.37.1.
+// Asking --help beats a version table, because the answer comes from the
+// binary that is about to run.
+function geckodriverOwnsSystemAccess() {
+  try {
+    return execFileSync("geckodriver", ["--help"]).toString().includes("--allow-system-access");
+  } catch {
+    return false;
+  }
+}
+
 function freePort() {
   return new Promise((resolve, reject) => {
     const probe = net.createServer();
@@ -117,6 +137,13 @@ function doctor() {
   if (gecko) {
     const version = execFileSync("geckodriver", ["--version"]).toString().split("\n")[0];
     record("geckodriver responds", true, version);
+    record(
+      "privileged access has a route on this geckodriver",
+      true,
+      geckodriverOwnsSystemAccess()
+        ? "--allow-system-access on geckodriver (0.36 and later)"
+        : "-remote-allow-system-access via capabilities (0.35 and earlier)",
+    );
   }
 
   if (firefox) {
@@ -168,7 +195,10 @@ async function run() {
   const fixtureUrl = `http://127.0.0.1:${server.address().port}/fixture`;
 
   const geckoPort = await freePort();
-  const gecko = spawn("geckodriver", ["--port", String(geckoPort)], {
+  const driverOwnsSystemAccess = geckodriverOwnsSystemAccess();
+  const geckoArgs = ["--port", String(geckoPort)];
+  if (driverOwnsSystemAccess) geckoArgs.push("--allow-system-access");
+  const gecko = spawn("geckodriver", geckoArgs, {
     stdio: ["ignore", "ignore", "pipe"],
   });
   const geckoLog = [];
@@ -216,13 +246,17 @@ async function run() {
     record("geckodriver accepting connections", up, `port ${geckoPort}`);
     if (!up) throw new Error("geckodriver never opened its port");
 
-    // -remote-allow-system-access is required from Firefox 138 onwards for the
-    // chrome context switch below. Without it the moz/context call is refused.
+    // Privileged access is what makes the chrome context switch below work, and
+    // only one of these two routes is open per geckodriver. See
+    // geckodriverOwnsSystemAccess. Passing both fails, passing neither means the
+    // moz/context call is refused from Firefox 138 onwards.
     const session = await wd("POST", "/session", {
       capabilities: {
         alwaysMatch: {
           "moz:firefoxOptions": {
-            args: ["-headless", "-remote-allow-system-access"],
+            args: driverOwnsSystemAccess
+              ? ["-headless"]
+              : ["-headless", "-remote-allow-system-access"],
             prefs: {
               "extensions.webextensions.uuids": JSON.stringify({ [EXT_ID]: EXT_UUID }),
             },
