@@ -3,6 +3,33 @@
 Release pages with downloadable builds live at
 [Releases](https://github.com/Deon-Trevor/Link-Extractor-9000/releases).
 
+Entries land under Unreleased as work happens. `npm run bump` promotes that
+heading to the version being released, so the notes are never written from memory
+at release time. Nothing but entries belongs in that section, since it becomes
+the release notes verbatim.
+
+## Unreleased
+
+### Added
+- `npm run bump <version>` moves the version through `package.json`, both
+  manifest templates and every reference in the docs, including the download
+  commands people copy. `npm run check` fails while anything still names the old
+  version.
+- `DEVELOPMENT.md`, holding the build, verification and release instructions that
+  were spread across the README and the install guides.
+
+### Changed
+- Both install guides describe installing a downloaded release and nothing else.
+  Building from a clone moved to `DEVELOPMENT.md`, so each page has one audience.
+- The README leads with the release downloads instead of a clone and a build.
+
+### Fixed
+- `npm run verify:firefox` could not start a session on Firefox 154, because
+  geckodriver 0.37.1 rejects `-remote-allow-system-access` in capabilities and
+  owns the flag itself from 0.36. The verifier now takes whichever route the
+  installed geckodriver offers.
+- The AMO source archive paragraph described the 1.0.0 zip three releases later.
+
 ## 1.0.3 (2026-08-21)
 
 ### Fixed

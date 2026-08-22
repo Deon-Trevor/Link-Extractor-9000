@@ -110,6 +110,29 @@ export function versionTokens(text) {
   return tokens;
 }
 
+export const UNRELEASED = "## Unreleased";
+
+// Promotes the Unreleased heading to a released one and leaves a fresh Unreleased
+// above it for the next cycle. Returns null when there is nothing to promote, so
+// the caller can say why instead of stamping a version on an empty section: the
+// release refuses empty notes, and finding that out at tag time is too late.
+//
+// Nothing but entries may live in that section, because this moves the body
+// wholesale and scripts/changelog-section.mjs hands it to gh release create.
+export function promoteUnreleased(text, version, date) {
+  const lines = text.split("\n");
+  const at = lines.findIndex((line) => /^##\s+unreleased\s*$/i.test(line));
+  if (at === -1) return null;
+
+  const rest = lines.slice(at + 1);
+  const until = rest.findIndex((line) => line.startsWith("## "));
+  const body = until === -1 ? rest : rest.slice(0, until);
+  if (!body.some((line) => line.trim())) return null;
+
+  lines.splice(at, 1, UNRELEASED, "", `## ${version} (${date})`);
+  return lines.join("\n");
+}
+
 // The version the newest CHANGELOG.md section is written for, which is the one a
 // release publishes as its notes.
 export function newestChangelogVersion(text) {
@@ -146,7 +169,8 @@ function main() {
     `${CHANGELOG} leads with the shipped version`,
     newest === version
       ? `## ${newest}`
-      : `newest section is ${newest || "missing"}, package.json says ${version}. Write the ${version} section.`,
+      : `newest section is ${newest || "missing"}, package.json says ${version}. ` +
+        `Put the entries under ${UNRELEASED}, then npm run bump ${version} promotes them.`,
   );
 
   const scanned = docs();

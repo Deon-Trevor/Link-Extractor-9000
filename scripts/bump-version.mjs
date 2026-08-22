@@ -9,15 +9,24 @@
 // belonging to other tools are left alone, decided by the same classifier
 // scripts/verify-versions.mjs checks with, so the two cannot disagree.
 //
-// CHANGELOG.md is deliberately not touched. A generated section would be an
-// empty heading nobody wrote, and the release refuses those anyway. Instead the
-// check stays red until the section exists, which is the reminder.
+// It also promotes the Unreleased section in CHANGELOG.md to the version being
+// released. It never writes the entries: an empty section stays empty and is
+// reported, because release notes nobody wrote is exactly what the release
+// refuses, and npm run check keeps failing until they exist.
 
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { DOCS, MANIFESTS, projectVersion, versionTokens } from "./verify-versions.mjs";
+import {
+  CHANGELOG,
+  DOCS,
+  MANIFESTS,
+  UNRELEASED,
+  projectVersion,
+  promoteUnreleased,
+  versionTokens,
+} from "./verify-versions.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -45,14 +54,15 @@ const higher = (a, b) => {
   return false;
 };
 
-if (wanted === current) {
-  console.error(`package.json already says ${current}. Nothing to bump.`);
-  process.exit(1);
-}
+// Re-running with the version already in package.json is allowed on purpose: a
+// bump that found nothing under Unreleased leaves the changelog behind, and then
+// writing the entries and running the same command again has to be able to
+// finish the job. Without this the only way out was editing a heading by hand.
+const already = wanted === current;
 
 // Catches the transposed digit, which is the realistic mistake here. A genuine
 // rollback can edit package.json and run npm run check.
-if (!higher(wanted, current)) {
+if (!already && !higher(wanted, current)) {
   console.error(`${wanted} is not higher than the current ${current}. Refusing, in case that is a typo.`);
   process.exit(1);
 }
@@ -78,13 +88,19 @@ const versionField = (file) => {
   rewrite(file, next, `version ${current} to ${wanted}`);
 };
 
-versionField("package.json");
-for (const manifest of MANIFESTS) versionField(manifest);
+if (!already) {
+  versionField("package.json");
+  for (const manifest of MANIFESTS) versionField(manifest);
+}
 
 // Only tokens that are this project's current version, and only where nothing
 // else owns them. Rebuilt line by line so a replacement cannot shift the
 // positions the classifier reported.
-for (const doc of DOCS) {
+// Nothing to rewrite when the version is already in place: that run is only here
+// to finish the changelog.
+const docsToRewrite = already ? [] : DOCS;
+
+for (const doc of docsToRewrite) {
   const text = fs.readFileSync(path.join(ROOT, doc), "utf8");
   const targets = versionTokens(text).filter(
     (token) => !token.external && token.version === current,
@@ -100,12 +116,32 @@ for (const doc of DOCS) {
   rewrite(doc, lines.join("\n"), `${targets.length} reference(s)`);
 }
 
-console.log(DRY ? `dry run: ${current} to ${wanted}` : `${current} to ${wanted}`);
+// Today, in the format the existing headings use.
+const today = new Date().toISOString().slice(0, 10);
+const changelog = fs.readFileSync(path.join(ROOT, CHANGELOG), "utf8");
+const promoted = promoteUnreleased(changelog, wanted, today);
+if (promoted) rewrite(CHANGELOG, promoted, `${UNRELEASED} promoted to ${wanted} (${today})`);
+
+const heading = already ? `${wanted}, changelog only` : `${current} to ${wanted}`;
+console.log(DRY ? `dry run: ${heading}` : heading);
 for (const edit of edits) console.log(`  ${edit}`);
 if (!edits.length) console.log("  nothing to change");
 
-console.log(
-  DRY
-    ? "\nnothing written."
-    : `\nNext: add the ${wanted} section to CHANGELOG.md, then npm run check. Tag v${wanted} to release.`,
-);
+if (already && !promoted) {
+  console.error(
+    `\npackage.json already says ${current} and ${CHANGELOG} has nothing under ${UNRELEASED}.` +
+      "\nNothing to do.",
+  );
+  process.exit(1);
+}
+
+if (DRY) {
+  console.log("\nnothing written.");
+} else if (promoted) {
+  console.log(`\nNext: read the ${wanted} notes in ${CHANGELOG}, then npm run check. Tag v${wanted} to release.`);
+} else {
+  console.log(
+    `\n${CHANGELOG} has nothing under ${UNRELEASED} to promote, so it was left alone.` +
+      `\nWrite the entries there, then npm run bump ${wanted} again to promote them.`,
+  );
+}

@@ -84,6 +84,45 @@ test("the docs scanned can only grow, never silently empty out", async () => {
   assert.ok(!scanned.includes(CHANGELOG));
 });
 
+test("promoting Unreleased leaves notes a release can publish", async () => {
+  const { promoteUnreleased } = await versions();
+
+  const before = [
+    "# Changelog",
+    "",
+    "## Unreleased",
+    "",
+    "### Fixed",
+    "- A real entry.",
+    "",
+    "## 1.0.3 (2026-08-21)",
+    "",
+    "### Fixed",
+    "- An older entry.",
+    "",
+  ].join("\n");
+
+  const after = promoteUnreleased(before, "1.0.4", "2026-08-22");
+  assert.match(after, /^## 1\.0\.4 \(2026-08-22\)$/m);
+
+  // A fresh heading is left for the next cycle, above the section just cut.
+  assert.ok(after.indexOf("## Unreleased") < after.indexOf("## 1.0.4"));
+
+  // The entries move with the heading, and the older release is untouched.
+  const promotedBody = after.slice(after.indexOf("## 1.0.4"), after.indexOf("## 1.0.3"));
+  assert.match(promotedBody, /- A real entry\./);
+  assert.ok(!promotedBody.includes("An older entry"));
+});
+
+test("an empty Unreleased section is never stamped with a version", async () => {
+  const { promoteUnreleased } = await versions();
+
+  // Release notes nobody wrote is what the release workflow refuses, so this has
+  // to fail early rather than produce a heading with nothing under it.
+  assert.equal(promoteUnreleased("# Changelog\n\n## Unreleased\n\n## 1.0.3 (2026-08-21)\n", "1.0.4", "2026-08-22"), null);
+  assert.equal(promoteUnreleased("# Changelog\n\n## 1.0.3 (2026-08-21)\n", "1.0.4", "2026-08-22"), null);
+});
+
 test("everything in the repo that names the shipped version agrees", async () => {
   const { CHANGELOG, MANIFESTS, docs, newestChangelogVersion, projectVersion, versionTokens } =
     await versions();

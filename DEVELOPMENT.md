@@ -75,9 +75,16 @@ npm run bump <version>   # or --dry-run to list the edits without writing
 ```
 
 That rewrites `package.json`, both manifest templates, and every version
-reference in the docs, including the download commands in the install guides.
-Then write the section in [`CHANGELOG.md`](CHANGELOG.md), which the bump leaves
-alone on purpose, and push a `v*` tag.
+reference in the docs, including the download commands in the install guides. It
+also promotes the Unreleased section in [`CHANGELOG.md`](CHANGELOG.md) to the
+version being released, and leaves a fresh Unreleased heading above it.
+
+So write entries under Unreleased as you go, not at release time. Only entries
+belong in that section, because it becomes the release notes verbatim. A bump
+finding nothing there says so and leaves the file alone, and `npm run check`
+keeps failing until the notes exist.
+
+Then push a `v*` tag.
 
 `npm run check` runs `scripts/verify-versions.mjs`, which fails while anything
 still claims the old version, the changelog included. A version a doc mentions in
