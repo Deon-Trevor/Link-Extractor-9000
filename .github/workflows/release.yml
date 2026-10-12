@@ -40,7 +40,7 @@ jobs:
           echo "tag=$REQUESTED" >> "$GITHUB_OUTPUT"
           echo "number=${REQUESTED#v}" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ steps.version.outputs.tag }}
           # npm run source uses git archive, which needs real history.
